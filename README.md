@@ -159,7 +159,7 @@ Our Enquiry App demonstrates the power of modern web technologies combined with 
 We extend our gratitude to everyone who contributed to making this project a reality. Special thanks to our core team members who dedicated countless hours to bring this vision to life.
 
 ### TEAM MEMBERS
-- **Anandu** - Lead Developer & Architect
+- **Anandu** - Lead Developer & Architect - [GitHub Profile](https://github.com/ANANDU-2000)
 - **Surag** - Full Stack Developer & Project Manager
 
 ### COLLABORATIVE WORK
