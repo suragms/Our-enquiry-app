@@ -160,7 +160,7 @@ We extend our gratitude to everyone who contributed to making this project a rea
 
 ### TEAM MEMBERS
 - **Anandu** - Lead Developer & Architect
-- **Surag** - ME - Full Stack Developer & Project Manager
+- **Surag** - Full Stack Developer & Project Manager
 
 ### COLLABORATIVE WORK
 This project represents months of dedicated collaborative effort, combining diverse skills and perspectives to create a comprehensive solution that addresses real-world project management challenges.
