@@ -36,8 +36,26 @@ interface Project {
   techStack: string;
   status: string;
   createdAt: string;
-  media: any[];
+  media: {
+    id: string;
+    type: 'IMAGE' | 'VIDEO';
+    url: string;
+  }[];
   feedbacks: any[];
+}
+
+interface ProjectMediaInput {
+  type: 'IMAGE' | 'VIDEO';
+  url: string;
+  uploading?: boolean;
+}
+
+interface ProjectForm {
+  name: string;
+  overview: string;
+  techStack: string;
+  status: string;
+  media: ProjectMediaInput[];
 }
 
 interface Feedback {
@@ -62,13 +80,15 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('projects');
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
 
   // Form states
-  const [projectForm, setProjectForm] = useState({
+  const [projectForm, setProjectForm] = useState<ProjectForm>({
     name: '',
     overview: '',
     techStack: '',
-    status: 'IN_PROGRESS'
+    status: 'IN_PROGRESS',
+    media: [],
   });
 
   const [userForm, setUserForm] = useState({
@@ -77,6 +97,9 @@ export default function AdminDashboard() {
     password: '',
     role: 'STAFF'
   });
+
+  const isMediaUploading = projectForm.media.some((media) => media.uploading);
+  const isEditingProject = Boolean(editingProject);
 
   useEffect(() => {
     // Check if user is logged in
@@ -96,7 +119,7 @@ export default function AdminDashboard() {
     try {
       const [projectsRes, feedbacksRes, usersRes] = await Promise.all([
         fetch('/api/projects'),
-        fetch('/api/feedback'),
+        fetch('/api/feedback?includeAll=true'),
         fetch('/api/users')
       ]);
 
@@ -120,27 +143,143 @@ export default function AdminDashboard() {
     window.location.href = '/admin/login';
   };
 
-  const handleCreateProject = async (e: React.FormEvent) => {
+  const handleSubmitProject = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/projects', {
-        method: 'POST',
+      const isEditing = Boolean(editingProject);
+      const endpoint = isEditing ? `/api/projects/${editingProject?.id}` : '/api/projects';
+      const method = isEditing ? 'PATCH' : 'POST';
+
+      const payload: any = {
+        name: projectForm.name,
+        overview: projectForm.overview,
+        techStack: projectForm.techStack,
+        status: projectForm.status,
+        media: projectForm.media
+          .filter((item) => item.url.trim())
+          .map((item) => ({
+            type: item.type,
+            url: item.url.trim(),
+          })),
+      };
+
+      if (!isEditing) {
+        payload.createdById = user?.id;
+      }
+
+      const response = await fetch(endpoint, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...projectForm,
-          createdById: user?.id
-        }),
+        body: JSON.stringify(payload),
       });
 
-      if (response.ok) {
-        setProjectForm({ name: '', overview: '', techStack: '', status: 'IN_PROGRESS' });
-        fetchData();
+      if (!response.ok) {
+        throw new Error('Failed to save project');
       }
+
+      setProjectForm({ name: '', overview: '', techStack: '', status: 'IN_PROGRESS', media: [] });
+      setEditingProject(null);
+      fetchData();
     } catch (error) {
-      console.error('Failed to create project:', error);
+      console.error('Failed to save project:', error);
+      alert('Failed to save project. Please try again.');
     }
+  };
+
+  const handleAddMediaField = () => {
+    setProjectForm((prev) => ({
+      ...prev,
+      media: [...prev.media, { type: 'IMAGE', url: '' }],
+    }));
+  };
+
+  const handleMediaChange = (index: number, field: keyof ProjectMediaInput, value: string) => {
+    setProjectForm((prev) => ({
+      ...prev,
+      media: prev.media.map((media, i) =>
+        i === index
+          ? {
+              ...media,
+              [field]: field === 'type' ? (value === 'VIDEO' ? 'VIDEO' : 'IMAGE') : value,
+            }
+          : media
+      ),
+    }));
+  };
+
+  const handleRemoveMediaField = (index: number) => {
+    setProjectForm((prev) => ({
+      ...prev,
+      media: prev.media.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleUploadMediaFile = async (index: number, files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    const mediaType = file.type.startsWith('video') ? 'VIDEO' : 'IMAGE';
+
+    setProjectForm((prev) => ({
+      ...prev,
+      media: prev.media.map((media, i) =>
+        i === index ? { ...media, uploading: true, type: mediaType } : media
+      ),
+    }));
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const data = await response.json();
+
+      setProjectForm((prev) => ({
+        ...prev,
+        media: prev.media.map((media, i) =>
+          i === index ? { ...media, url: data.url, uploading: false } : media
+        ),
+      }));
+    } catch (error) {
+      console.error('Failed to upload media:', error);
+      alert('Failed to upload media. Please try again.');
+      setProjectForm((prev) => ({
+        ...prev,
+        media: prev.media.map((media, i) =>
+          i === index ? { ...media, uploading: false } : media
+        ),
+      }));
+    }
+  };
+
+  const handleEditProject = (project: Project) => {
+    setEditingProject(project);
+    setProjectForm({
+      name: project.name,
+      overview: project.overview,
+      techStack: project.techStack || '',
+      status: project.status,
+      media: project.media?.map((item) => ({
+        type: item.type,
+        url: item.url,
+      })) || [],
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingProject(null);
+    setProjectForm({ name: '', overview: '', techStack: '', status: 'IN_PROGRESS', media: [] });
   };
 
   const handleCreateUser = async (e: React.FormEvent) => {
@@ -196,6 +335,26 @@ export default function AdminDashboard() {
       }
     } catch (error) {
       console.error('Failed to update feedback:', error);
+    }
+  };
+
+  const handleDeleteFeedback = async (feedbackId: string) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this feedback? This action cannot be undone.');
+    if (!confirmDelete) return;
+
+    try {
+      const response = await fetch(`/api/feedback/manage/${feedbackId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        fetchData();
+      } else {
+        alert('Failed to delete feedback. Please try again.');
+      }
+    } catch (error) {
+      console.error('Failed to delete feedback:', error);
+      alert('Failed to delete feedback. Please try again.');
     }
   };
 
@@ -332,7 +491,20 @@ export default function AdminDashboard() {
                   <CardDescription>Create a new project for your portfolio</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleCreateProject} className="space-y-4">
+                  {editingProject && (
+                    <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-blue-900">
+                          Editing project: {editingProject.name}
+                        </p>
+                        <p className="text-xs text-blue-700">Save your changes or cancel to create a new project.</p>
+                      </div>
+                      <Button type="button" variant="ghost" size="sm" onClick={handleCancelEdit}>
+                        Cancel Edit
+                      </Button>
+                    </div>
+                  )}
+                  <form onSubmit={handleSubmitProject} className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -381,7 +553,89 @@ export default function AdminDashboard() {
                         placeholder="React, Node.js, MongoDB"
                       />
                     </div>
-                    <Button type="submit">Create Project</Button>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">Project Media (optional)</p>
+                          <p className="text-xs text-gray-500">
+                            Add image or video links to showcase the project.
+                          </p>
+                        </div>
+                        <Button type="button" variant="outline" size="sm" onClick={handleAddMediaField}>
+                          <Plus className="w-4 h-4 mr-1" />
+                          Add Media
+                        </Button>
+                      </div>
+                      {projectForm.media.length === 0 && (
+                        <p className="text-sm text-gray-500">No media added yet.</p>
+                      )}
+                      {projectForm.media.map((media, index) => (
+                        <div key={index} className="border rounded-md p-4 space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Media Type
+                              </label>
+                              <select
+                                value={media.type}
+                                onChange={(e) => handleMediaChange(index, 'type', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                              >
+                                <option value="IMAGE">Image</option>
+                                <option value="VIDEO">Video</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Media URL (optional)
+                              </label>
+                              <Input
+                                value={media.url}
+                                onChange={(e) => handleMediaChange(index, 'url', e.target.value)}
+                                placeholder="https://example.com/media.jpg"
+                                type="text"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Upload File
+                            </label>
+                            <Input
+                              type="file"
+                              accept="image/*,video/*"
+                              onChange={(e) => handleUploadMediaFile(index, e.target.files)}
+                              disabled={media.uploading}
+                            />
+                            <p className="text-xs text-gray-500 mt-2">
+                              Uploading a file will automatically fill the media URL field.
+                            </p>
+                            {media.uploading && (
+                              <p className="text-xs text-blue-600 mt-1">Uploading file...</p>
+                            )}
+                          </div>
+                          <div className="flex justify-end">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-600"
+                              onClick={() => handleRemoveMediaField(index)}
+                            >
+                              <Trash2 className="w-4 h-4 mr-1" />
+                              Remove
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <Button type="submit" disabled={isMediaUploading}>
+                      {isMediaUploading
+                        ? 'Uploading media...'
+                        : isEditingProject
+                          ? 'Save Changes'
+                          : 'Create Project'}
+                    </Button>
                   </form>
                 </CardContent>
               </Card>
@@ -405,7 +659,7 @@ export default function AdminDashboard() {
                           )}
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" onClick={() => handleEditProject(project)}>
                             <Edit className="w-4 h-4" />
                           </Button>
                           <Button variant="outline" size="sm">
@@ -476,6 +730,14 @@ export default function AdminDashboard() {
                             )}
                           </Button>
                         </div>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDeleteFeedback(feedback.id)}
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Delete
+                        </Button>
                       </div>
                     </div>
                   </CardContent>

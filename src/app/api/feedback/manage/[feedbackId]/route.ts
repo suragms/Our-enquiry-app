@@ -25,3 +25,17 @@ export async function PATCH(request: NextRequest, { params }: { params: { feedba
     return Response.json({ error: 'Failed to update feedback' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: NextRequest, { params }: { params: { feedbackId: string } }) {
+  try {
+    const { feedbackId } = params;
+
+    await db.feedback.delete({
+      where: { id: feedbackId },
+    });
+
+    return Response.json({ success: true });
+  } catch (error) {
+    return Response.json({ error: 'Failed to delete feedback' }, { status: 500 });
+  }
+}

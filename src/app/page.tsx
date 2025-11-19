@@ -19,6 +19,17 @@ export default function Home() {
     requirement: ''
   });
 
+  const [feedbackForm, setFeedbackForm] = useState({
+    projectId: '',
+    name: '',
+    company: '',
+    content: '',
+    rating: 5
+  });
+
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+
   useEffect(() => {
     fetchProjects();
     fetchFeedbacks();
@@ -49,6 +60,42 @@ export default function Home() {
     const message = `Name: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nRequirement: ${formData.requirement}`;
     const whatsappUrl = `https://wa.me/1234567890?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
+  };
+
+  const handleFeedbackSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFeedbackLoading(true);
+
+    try {
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(feedbackForm),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setFeedbackSubmitted(true);
+        setFeedbacks((prev) => [data.feedback, ...prev]);
+        setFeedbackForm({
+          projectId: '',
+          name: '',
+          company: '',
+          content: '',
+          rating: 5
+        });
+        setTimeout(() => setFeedbackSubmitted(false), 5000);
+      } else {
+        alert('Failed to submit feedback. Please try again.');
+      }
+    } catch (error) {
+      console.error('Failed to submit feedback:', error);
+      alert('Failed to submit feedback. Please try again.');
+    } finally {
+      setFeedbackLoading(false);
+    }
   };
 
   const services = [
@@ -87,6 +134,46 @@ export default function Home() {
     ));
   };
 
+  const getProjectMediaPreview = (media: any[]) => {
+    if (!media || media.length === 0) return null;
+
+    const image = media.find((item) => item.type === 'IMAGE' && item.url);
+    if (image) {
+      return (
+        <img
+          src={image.url}
+          alt="Project preview"
+          className="w-full h-48 object-cover rounded-lg border"
+          loading="lazy"
+        />
+      );
+    }
+
+    const video = media.find((item) => item.type === 'VIDEO' && item.url);
+    if (video) {
+      return (
+        <div className="w-full h-48 bg-gray-900 rounded-lg flex items-center justify-center text-white text-sm">
+          <span>Video preview available</span>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  const heroCoverImages = [
+    {
+      title: 'Immersive Collaboration',
+      caption: 'GenAI-led product sprints with global teams',
+      image: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1200&q=80',
+    },
+    {
+      title: 'Autonomous Cloud Ops',
+      caption: 'Observability, automation, and resilience on autopilot',
+      image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -101,7 +188,8 @@ export default function Home() {
               <a href="#home" className="text-gray-700 hover:text-gray-900 transition-colors">Home</a>
               <a href="#services" className="text-gray-700 hover:text-gray-900 transition-colors">Services</a>
               <a href="#portfolio" className="text-gray-700 hover:text-gray-900 transition-colors">Portfolio</a>
-              <a href="#about" className="text-gray-700 hover:text-gray-900 transition-colors">About</a>
+              <a href="#testimonials" className="text-gray-700 hover:text-gray-900 transition-colors">Testimonials</a>
+              <a href="#share-feedback" className="text-gray-700 hover:text-gray-900 transition-colors">Share Feedback</a>
               <a href="#contact" className="text-gray-700 hover:text-gray-900 transition-colors">Contact</a>
               <Button asChild>
                 <a href="/admin">Admin Portal</a>
@@ -126,7 +214,8 @@ export default function Home() {
               <a href="#home" className="block px-3 py-2 text-gray-700 hover:text-gray-900">Home</a>
               <a href="#services" className="block px-3 py-2 text-gray-700 hover:text-gray-900">Services</a>
               <a href="#portfolio" className="block px-3 py-2 text-gray-700 hover:text-gray-900">Portfolio</a>
-              <a href="#about" className="block px-3 py-2 text-gray-700 hover:text-gray-900">About</a>
+              <a href="#testimonials" className="block px-3 py-2 text-gray-700 hover:text-gray-900">Testimonials</a>
+              <a href="#share-feedback" className="block px-3 py-2 text-gray-700 hover:text-gray-900">Share Feedback</a>
               <a href="#contact" className="block px-3 py-2 text-gray-700 hover:text-gray-900">Contact</a>
               <div className="px-3 py-2">
                 <Button asChild className="w-full">
@@ -141,8 +230,30 @@ export default function Home() {
       {/* Hero Section */}
       <section id="home" className="pt-16 min-h-screen flex items-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center">
-            <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+          <div className="text-center space-y-10">
+            <div className="relative mx-auto max-w-6xl">
+              <div className="relative overflow-hidden rounded-[40px] border border-white/15 bg-gray-950/80 shadow-2xl backdrop-blur-xl">
+                <img
+                  src="https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=2000&q=80"
+                  alt="Futuristic workspace"
+                  className="h-[420px] w-full object-cover opacity-90 animate-pan-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-gray-950/80 via-gray-900/20 to-gray-950/80"></div>
+                <div className="absolute inset-0 flex flex-col justify-between p-10 text-left">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.4em] text-blue-300">Tech & Innovation</p>
+                    <h3 className="mt-4 text-4xl md:text-5xl font-semibold text-white">
+                      Stories from tomorrow’s engineering lab
+                    </h3>
+                  </div>
+                  <div className="text-gray-300 text-sm md:text-base max-w-2xl">
+                    AI-native product design, spatial computing, and autonomous cloud operations—captured in one immersive visual narrative with subtle motion.
+                  </div>
+                </div>
+                <div className="absolute -inset-1 rounded-[44px] border border-white/10 animate-gradient-pan pointer-events-none"></div>
+              </div>
+            </div>
+            <h2 className="text-4xl md:text-6xl font-bold text-gray-900">
               Building Digital
               <span className="text-blue-600"> Excellence</span>
             </h2>
@@ -206,6 +317,7 @@ export default function Home() {
             {projects.map((project: any) => (
               <Card key={project.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
+                    {getProjectMediaPreview(project.media)}
                   <div className="flex justify-between items-start mb-2">
                     <CardTitle className="text-xl">{project.name}</CardTitle>
                     <Badge variant={project.status === 'DELIVERED' ? 'default' : 'secondary'}>
@@ -251,9 +363,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* Client Testimonials Section */}
       {feedbacks.length > 0 && (
-        <section className="py-20 bg-gray-50">
+        <section id="testimonials" className="py-20 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Client Testimonials</h2>
@@ -286,6 +398,132 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* Share Your Feedback Section */}
+      <section id="share-feedback" className="py-20 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Share Your Experience</h2>
+            <p className="text-xl text-gray-600">
+              We'd love to hear about your experience working with us!
+            </p>
+          </div>
+
+          {feedbackSubmitted && (
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+              <p className="text-green-800">Thank you for your feedback! It will be reviewed and published soon.</p>
+            </div>
+          )}
+
+          <Card>
+            <CardContent className="p-8">
+              <form onSubmit={handleFeedbackSubmit} className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="feedback-name" className="block text-sm font-medium text-gray-700 mb-2">
+                      Your Name *
+                    </label>
+                    <Input
+                      id="feedback-name"
+                      type="text"
+                      required
+                      value={feedbackForm.name}
+                      onChange={(e) => setFeedbackForm({ ...feedbackForm, name: e.target.value })}
+                      placeholder="John Doe"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="feedback-company" className="block text-sm font-medium text-gray-700 mb-2">
+                      Company Name
+                    </label>
+                    <Input
+                      id="feedback-company"
+                      type="text"
+                      value={feedbackForm.company}
+                      onChange={(e) => setFeedbackForm({ ...feedbackForm, company: e.target.value })}
+                      placeholder="Your Company"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="feedback-project" className="block text-sm font-medium text-gray-700 mb-2">
+                    Select Project *
+                  </label>
+                  <select
+                    id="feedback-project"
+                    required
+                    value={feedbackForm.projectId}
+                    onChange={(e) => setFeedbackForm({ ...feedbackForm, projectId: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Choose a project...</option>
+                    {projects.map((project: any) => (
+                      <option key={project.id} value={project.id}>
+                        {project.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Your Rating *
+                  </label>
+                  <div className="flex items-center gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setFeedbackForm({ ...feedbackForm, rating: star })}
+                        className="transition-transform hover:scale-110"
+                      >
+                        <Star
+                          className={`w-8 h-8 cursor-pointer ${
+                            star <= feedbackForm.rating
+                              ? 'fill-yellow-400 text-yellow-400'
+                              : 'text-gray-300'
+                          }`}
+                        />
+                      </button>
+                    ))}
+                    <span className="ml-2 text-gray-600">({feedbackForm.rating}/5)</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="feedback-content" className="block text-sm font-medium text-gray-700 mb-2">
+                    Your Feedback *
+                  </label>
+                  <Textarea
+                    id="feedback-content"
+                    required
+                    rows={5}
+                    value={feedbackForm.content}
+                    onChange={(e) => setFeedbackForm({ ...feedbackForm, content: e.target.value })}
+                    placeholder="Share your experience working with us..."
+                  />
+                </div>
+
+                <Button 
+                  type="submit" 
+                  size="lg" 
+                  className="w-full"
+                  disabled={feedbackLoading}
+                >
+                  {feedbackLoading ? 'Submitting...' : 'Submit Feedback'}
+                </Button>
+
+                <p className="text-sm text-gray-500 text-center">
+                  Your feedback will be reviewed before being published on our website.
+                </p>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
       {/* About Section */}
       <section id="about" className="py-20">

@@ -1,5 +1,6 @@
 import { db } from '@/lib/db';
 import { nanoid } from 'nanoid';
+import { NextRequest } from 'next/server';
 
 export async function POST(request: Request) {
   try {
@@ -36,10 +37,15 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const url = new URL(request.url);
+    const includeAll = url.searchParams.get('includeAll') === 'true';
+
     const feedbacks = await db.feedback.findMany({
-      where: { isApproved: true, isPublic: true },
+      where: includeAll
+        ? undefined
+        : { isApproved: true, isPublic: true },
       include: {
         project: {
           select: { name: true },

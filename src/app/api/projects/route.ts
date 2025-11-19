@@ -23,7 +23,22 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { name, overview, techStack, status, createdById } = await request.json();
+    const { name, overview, techStack, status, createdById, media } = await request.json();
+
+    const mediaData = Array.isArray(media)
+      ? media
+          .filter(
+            (item: any) =>
+              item?.url &&
+              typeof item.url === 'string' &&
+              item?.type &&
+              ['IMAGE', 'VIDEO'].includes(item.type)
+          )
+          .map((item: any) => ({
+            type: item.type,
+            url: item.url,
+          }))
+      : [];
 
     const project = await db.project.create({
       data: {
@@ -32,6 +47,11 @@ export async function POST(request: Request) {
         techStack,
         status,
         createdById,
+        media: mediaData.length
+          ? {
+              create: mediaData,
+            }
+          : undefined,
       },
       include: {
         media: true,
