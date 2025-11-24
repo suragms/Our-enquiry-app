@@ -101,6 +101,26 @@ async function seed() {
 
     console.log('Sample project media created');
 
+    // Create company settings
+    const companySettings = await db.companySettings.create({
+      data: {
+        companyName: 'HexaStack Solutions',
+        primaryEmail: 'anandukrishnapa2000@gmail.com',
+        primaryWhatsApp: '+917591999365',
+        secondaryWhatsApp: '+917012714150',
+        leadName1: 'Anandu Krishna',
+        leadEmail1: 'anandukrishnapa2000@gmail.com',
+        leadWhatsApp1: '+917591999365',
+        leadName2: 'Surag',
+        leadWhatsApp2: '+917012714150',
+        address: 'Kerala, India',
+        tagline: 'Building Digital Excellence',
+        description: 'We create innovative web applications, mobile solutions, and AI-powered tools that transform your business ideas into reality.',
+      },
+    });
+
+    console.log('Company settings created:', companySettings);
+
     console.log('Database seeded successfully!');
   } catch (error) {
     console.error('Error seeding database:', error);

@@ -14,24 +14,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Z.ai Code Scaffold - AI-Powered Development",
-  description: "Modern Next.js scaffold optimized for AI-powered development with Z.ai. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
-  keywords: ["Z.ai", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "AI development", "React"],
-  authors: [{ name: "Z.ai Team" }],
+  title: "HexaStack Solutions - Building Digital Excellence",
+  description: "We create innovative web applications, mobile solutions, and AI-powered tools that transform your business ideas into reality. Expert development services in Kerala, India.",
+  keywords: ["HexaStack Solutions", "Web Development", "Mobile Apps", "AI Solutions", "Kerala", "India", "Digital Transformation", "Software Development"],
+  authors: [{ name: "HexaStack Solutions" }],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/favicon.ico",
   },
   openGraph: {
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
-    url: "https://chat.z.ai",
-    siteName: "Z.ai",
+    title: "HexaStack Solutions - Building Digital Excellence",
+    description: "Transform your business ideas into reality with innovative web applications, mobile solutions, and AI-powered tools",
+    url: "https://hexastack.solutions",
+    siteName: "HexaStack Solutions",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
+    title: "HexaStack Solutions - Building Digital Excellence",
+    description: "Transform your business ideas into reality with innovative web applications, mobile solutions, and AI-powered tools",
   },
 };
 

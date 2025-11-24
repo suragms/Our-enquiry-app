@@ -9,8 +9,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Star, Code, Smartphone, Cloud, Cpu, MessageSquare, Mail, Phone, MapPin, CheckCircle, ArrowRight, Menu, X } from 'lucide-react';
 
 export default function Home() {
-  const [projects, setProjects] = useState([]);
-  const [feedbacks, setFeedbacks] = useState([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [feedbacks, setFeedbacks] = useState<any[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -58,7 +58,7 @@ export default function Home() {
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const message = `Name: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nRequirement: ${formData.requirement}`;
-    const whatsappUrl = `https://wa.me/1234567890?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/917591999365?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
 
@@ -181,7 +181,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">TechPortfolio</h1>
+              <h1 className="text-2xl font-bold text-gray-900">HexaStack Solutions</h1>
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
@@ -191,9 +191,6 @@ export default function Home() {
               <a href="#testimonials" className="text-gray-700 hover:text-gray-900 transition-colors">Testimonials</a>
               <a href="#share-feedback" className="text-gray-700 hover:text-gray-900 transition-colors">Share Feedback</a>
               <a href="#contact" className="text-gray-700 hover:text-gray-900 transition-colors">Contact</a>
-              <Button asChild>
-                <a href="/admin">Admin Portal</a>
-              </Button>
             </div>
 
             <Button
@@ -217,11 +214,6 @@ export default function Home() {
               <a href="#testimonials" className="block px-3 py-2 text-gray-700 hover:text-gray-900">Testimonials</a>
               <a href="#share-feedback" className="block px-3 py-2 text-gray-700 hover:text-gray-900">Share Feedback</a>
               <a href="#contact" className="block px-3 py-2 text-gray-700 hover:text-gray-900">Contact</a>
-              <div className="px-3 py-2">
-                <Button asChild className="w-full">
-                  <a href="/admin">Admin Portal</a>
-                </Button>
-              </div>
             </div>
           </div>
         )}
@@ -530,12 +522,12 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">About TechPortfolio</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">About HexaStack Solutions</h2>
               <p className="text-lg text-gray-600 mb-6">
-                We are a team of passionate developers and designers dedicated to creating exceptional digital experiences. With years of experience in web development, mobile applications, and AI solutions, we help businesses transform their ideas into powerful digital products.
+                We are a team of passionate developers and designers based in Kerala, India, dedicated to creating exceptional digital experiences. With years of experience in web development, mobile applications, and AI solutions, we help businesses transform their ideas into powerful digital products.
               </p>
               <p className="text-lg text-gray-600 mb-8">
-                Our mission is to deliver high-quality, innovative solutions that drive business growth and exceed client expectations. We believe in the power of technology to transform businesses and improve lives.
+                Led by Anandu Krishna and Surag, our mission is to deliver high-quality, innovative solutions that drive business growth and exceed client expectations. We believe in the power of technology to transform businesses and improve lives.
               </p>
               
               <div className="grid grid-cols-2 gap-6">
@@ -613,7 +605,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12">
+          <div className="max-w-2xl mx-auto">
             <div>
               <form onSubmit={handleContactSubmit} className="space-y-6">
                 <div>
@@ -677,57 +669,6 @@ export default function Home() {
                 </Button>
               </form>
             </div>
-            
-            <div className="space-y-8">
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">Contact Information</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <Mail className="w-6 h-6 text-blue-600" />
-                    <div>
-                      <p className="font-medium text-gray-900">Email</p>
-                      <p className="text-gray-600">hello@techportfolio.com</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-4">
-                    <Phone className="w-6 h-6 text-blue-600" />
-                    <div>
-                      <p className="font-medium text-gray-900">Phone</p>
-                      <p className="text-gray-600">+1 (555) 123-4567</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-4">
-                    <MapPin className="w-6 h-6 text-blue-600" />
-                    <div>
-                      <p className="font-medium text-gray-900">Address</p>
-                      <p className="text-gray-600">123 Tech Street, Silicon Valley, CA 94025</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-blue-50 rounded-lg p-6">
-                <h4 className="text-lg font-semibold text-gray-900 mb-3">Business Hours</h4>
-                <div className="space-y-2 text-gray-600">
-                  <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
-                  <p>Saturday: 10:00 AM - 4:00 PM</p>
-                  <p>Sunday: Closed</p>
-                </div>
-              </div>
-              
-              <div className="flex gap-4">
-                <Button variant="outline" size="lg" className="flex-1">
-                  <MessageSquare className="w-5 h-5 mr-2" />
-                  WhatsApp
-                </Button>
-                <Button variant="outline" size="lg" className="flex-1">
-                  <Mail className="w-5 h-5 mr-2" />
-                  Email
-                </Button>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -737,7 +678,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-2xl font-bold mb-4">TechPortfolio</h3>
+              <h3 className="text-2xl font-bold mb-4">HexaStack Solutions</h3>
               <p className="text-gray-400">
                 Building digital excellence with innovative solutions.
               </p>
@@ -775,7 +716,7 @@ export default function Home() {
           </div>
           
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 TechPortfolio. All rights reserved.</p>
+            <p>&copy; 2024 HexaStack Solutions. All rights reserved.</p>
           </div>
         </div>
       </footer>

@@ -29,6 +29,22 @@ interface User {
   role: string;
 }
 
+interface CompanySettings {
+  id: string;
+  companyName: string;
+  primaryEmail: string;
+  primaryWhatsApp: string;
+  secondaryWhatsApp: string | null;
+  leadName1: string;
+  leadEmail1: string;
+  leadWhatsApp1: string;
+  leadName2: string;
+  leadWhatsApp2: string;
+  address: string | null;
+  tagline: string | null;
+  description: string | null;
+}
+
 interface Project {
   id: string;
   name: string;
@@ -78,6 +94,7 @@ export default function AdminDashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [companySettings, setCompanySettings] = useState<CompanySettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('projects');
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -117,19 +134,22 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     try {
-      const [projectsRes, feedbacksRes, usersRes] = await Promise.all([
+      const [projectsRes, feedbacksRes, usersRes, settingsRes] = await Promise.all([
         fetch('/api/projects'),
         fetch('/api/feedback?includeAll=true'),
-        fetch('/api/users')
+        fetch('/api/users'),
+        fetch('/api/settings')
       ]);
 
       const projectsData = await projectsRes.json();
       const feedbacksData = await feedbacksRes.json();
       const usersData = await usersRes.json();
+      const settingsData = await settingsRes.json();
 
       setProjects(projectsData);
       setFeedbacks(feedbacksData);
       setUsers(usersData);
+      setCompanySettings(settingsData);
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
@@ -840,15 +860,66 @@ export default function AdminDashboard() {
 
           {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Company Settings</h2>
             
             <Card>
               <CardHeader>
-                <CardTitle>Website Content</CardTitle>
-                <CardDescription>Manage website content and settings</CardDescription>
+                <CardTitle>Company Information</CardTitle>
+                <CardDescription>Manage company details and contact information</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">Content management features coming soon...</p>
+                {companySettings ? (
+                  <form
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      try {
+                        const response = await fetch('/api/settings', {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(companySettings),
+                        });
+                        if (response.ok) {
+                          alert('Settings updated successfully!');
+                          fetchData();
+                        }
+                      } catch (error) {
+                        console.error('Failed to update settings:', error);
+                        alert('Failed to update settings');
+                      }
+                    }}
+                    className="space-y-6"
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
+                        <Input value={companySettings.companyName || ''} onChange={(e) => setCompanySettings({ ...companySettings, companyName: e.target.value })} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Primary Email</label>
+                        <Input type="email" value={companySettings.primaryEmail || ''} onChange={(e) => setCompanySettings({ ...companySettings, primaryEmail: e.target.value })} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Primary WhatsApp</label>
+                        <Input value={companySettings.primaryWhatsApp || ''} onChange={(e) => setCompanySettings({ ...companySettings, primaryWhatsApp: e.target.value })} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Secondary WhatsApp</label>
+                        <Input value={companySettings.secondaryWhatsApp || ''} onChange={(e) => setCompanySettings({ ...companySettings, secondaryWhatsApp: e.target.value })} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Lead 1: {companySettings.leadName1}</label>
+                        <Input value={companySettings.leadWhatsApp1 || ''} onChange={(e) => setCompanySettings({ ...companySettings, leadWhatsApp1: e.target.value })} placeholder="WhatsApp" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Lead 2: {companySettings.leadName2}</label>
+                        <Input value={companySettings.leadWhatsApp2 || ''} onChange={(e) => setCompanySettings({ ...companySettings, leadWhatsApp2: e.target.value })} placeholder="WhatsApp" />
+                      </div>
+                    </div>
+                    <Button type="submit" size="lg">Save Settings</Button>
+                  </form>
+                ) : (
+                  <p className="text-gray-600">Loading settings...</p>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

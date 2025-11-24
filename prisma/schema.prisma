@@ -98,6 +98,24 @@ model WebsiteContent {
   updatedAt DateTime @updatedAt
 }
 
+model CompanySettings {
+  id                  String   @id @default(cuid())
+  companyName         String   @default("HexaStack Solutions")
+  primaryEmail        String   @default("anandukrishnapa2000@gmail.com")
+  primaryWhatsApp     String   @default("+917591999365")
+  secondaryWhatsApp   String?  @default("+917012714150")
+  leadName1           String   @default("Anandu Krishna")
+  leadEmail1          String   @default("anandukrishnapa2000@gmail.com")
+  leadWhatsApp1       String   @default("+917591999365")
+  leadName2           String   @default("Surag")
+  leadWhatsApp2       String   @default("+917012714150")
+  address             String?  @default("Kerala, India")
+  tagline             String?  @default("Building Digital Excellence")
+  description         String?  @default("We create innovative web applications, mobile solutions, and AI-powered tools that transform your business ideas into reality.")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
 enum UserRole {
   SUPER_ADMIN
   ADMIN
