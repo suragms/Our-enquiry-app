@@ -1,9 +1,9 @@
 import { db } from '@/lib/db';
 import { NextRequest } from 'next/server';
 
-export async function PATCH(request: NextRequest, { params }: { params: { feedbackId: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ feedbackId: string }> }) {
   try {
-    const { feedbackId } = params;
+    const { feedbackId } = await params;
     const { isApproved, isPublic } = await request.json();
 
     const updateData: any = {};
@@ -26,9 +26,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { feedba
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { feedbackId: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ feedbackId: string }> }) {
   try {
-    const { feedbackId } = params;
+    const { feedbackId } = await params;
 
     await db.feedback.delete({
       where: { id: feedbackId },

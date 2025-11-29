@@ -1,9 +1,9 @@
 import { db } from '@/lib/db';
 import { NextRequest } from 'next/server';
 
-export async function GET(request: NextRequest, { params }: { params: { token: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   try {
-    const { token } = params;
+    const { token } = await params;
 
     const feedback = await db.feedback.findUnique({
       where: { linkToken: token },
@@ -26,9 +26,9 @@ export async function GET(request: NextRequest, { params }: { params: { token: s
   }
 }
 
-export async function POST(request: NextRequest, { params }: { params: { token: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   try {
-    const { token } = params;
+    const { token } = await params;
     const { name, company, content, rating } = await request.json();
 
     if (!name || !content || !rating) {

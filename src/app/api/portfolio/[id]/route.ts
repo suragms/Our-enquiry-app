@@ -4,11 +4,12 @@ import { db } from '@/lib/db';
 // GET - Fetch single portfolio
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const portfolio = await db.portfolio.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         media: true,
         teamMembers: true,
@@ -35,9 +36,10 @@ export async function GET(
 // PUT - Update portfolio
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const {
       title,
@@ -52,14 +54,14 @@ export async function PUT(
 
     // Delete existing media and team members, then create new ones
     await db.portfolioMedia.deleteMany({
-      where: { portfolioId: params.id },
+      where: { portfolioId: id },
     });
     await db.portfolioTeamMember.deleteMany({
-      where: { portfolioId: params.id },
+      where: { portfolioId: id },
     });
 
     const portfolio = await db.portfolio.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title,
         description,
@@ -93,11 +95,12 @@ export async function PUT(
 // DELETE - Delete portfolio
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await db.portfolio.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json(

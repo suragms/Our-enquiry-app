@@ -1,9 +1,9 @@
 import { db } from '@/lib/db';
 import { NextRequest } from 'next/server';
 
-export async function PATCH(request: NextRequest, { params }: { params: { projectId: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ projectId: string }> }) {
   try {
-    const { projectId } = params;
+    const { projectId } = await params;
     const { name, overview, techStack, status, media } = await request.json();
 
     if (!name || !overview || !status) {
@@ -56,6 +56,21 @@ export async function PATCH(request: NextRequest, { params }: { params: { projec
   } catch (error) {
     console.error('Failed to update project:', error);
     return Response.json({ error: 'Failed to update project' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ projectId: string }> }) {
+  try {
+    const { projectId } = await params;
+
+    await db.project.delete({
+      where: { id: projectId },
+    });
+
+    return Response.json({ success: true });
+  } catch (error) {
+    console.error('Failed to delete project:', error);
+    return Response.json({ error: 'Failed to delete project' }, { status: 500 });
   }
 }
 
