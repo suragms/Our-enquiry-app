@@ -253,9 +253,11 @@ export default function Home() {
               We create innovative web applications, mobile solutions, and AI-powered tools that transform your business ideas into reality.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="text-lg px-8 py-6">
-                <MessageSquare className="w-5 h-5 mr-2" />
-                Get Started
+              <Button size="lg" className="text-lg px-8 py-6" asChild>
+                <a href="#contact">
+                  <MessageSquare className="w-5 h-5 mr-2" />
+                  Get Started
+                </a>
               </Button>
               <Button size="lg" variant="outline" className="text-lg px-8 py-6" asChild>
                 <a href="#portfolio">

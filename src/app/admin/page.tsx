@@ -360,6 +360,25 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeleteProject = async (projectId: string) => {
+    if (!confirm('Are you sure you want to delete this project?')) return;
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        fetchData();
+      } else {
+        alert('Failed to delete project');
+      }
+    } catch (error) {
+      console.error('Failed to delete project:', error);
+      alert('Failed to delete project');
+    }
+  };
+
   const handleDeleteFeedback = async (feedbackId: string) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this feedback? This action cannot be undone.');
     if (!confirmDelete) return;
@@ -540,10 +559,6 @@ export default function AdminDashboard() {
           <TabsContent value="projects" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">Projects</h2>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Project
-              </Button>
             </div>
 
             <div className="grid gap-6">
@@ -725,7 +740,7 @@ export default function AdminDashboard() {
                           <Button variant="outline" size="sm" onClick={() => handleEditProject(project)}>
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" onClick={() => handleDeleteProject(project.id)}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -741,10 +756,6 @@ export default function AdminDashboard() {
           <TabsContent value="feedbacks" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">Client Feedbacks</h2>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Create Feedback Link
-              </Button>
             </div>
 
             <div className="grid gap-4">
@@ -813,10 +824,6 @@ export default function AdminDashboard() {
           <TabsContent value="users" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">Team Members</h2>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Add User
-              </Button>
             </div>
 
             <Card>
