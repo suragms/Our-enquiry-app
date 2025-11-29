@@ -116,6 +116,41 @@ model CompanySettings {
   updatedAt           DateTime @updatedAt
 }
 
+model Portfolio {
+  id              String   @id @default(cuid())
+  title           String
+  description     String
+  techStack       String?
+  projectUrl      String?
+  featured        Boolean  @default(false)
+  displayOrder    Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  media           PortfolioMedia[]
+  teamMembers     PortfolioTeamMember[]
+}
+
+model PortfolioMedia {
+  id          String      @id @default(cuid())
+  type        MediaType
+  url         String
+  portfolioId String
+  portfolio   Portfolio   @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
+}
+
+model PortfolioTeamMember {
+  id          String    @id @default(cuid())
+  name        String
+  role        String?
+  linkedIn    String?
+  profileUrl  String?
+  portfolioId String
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+}
+
 enum UserRole {
   SUPER_ADMIN
   ADMIN
