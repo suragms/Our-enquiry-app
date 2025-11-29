@@ -19,7 +19,9 @@ import {
   Eye,
   EyeOff,
   Check,
-  X
+  X,
+  Briefcase,
+  ExternalLink
 } from 'lucide-react';
 
 interface User {
@@ -486,12 +488,53 @@ export default function AdminDashboard() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="projects">Projects</TabsTrigger>
+            <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
             <TabsTrigger value="feedbacks">Feedbacks</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
+
+          {/* Portfolio Tab */}
+          <TabsContent value="portfolio" className="space-y-6">
+            <Card className="border-green-200 bg-gradient-to-br from-green-50 to-white">
+              <CardContent className="p-8 text-center">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="p-4 bg-green-100 rounded-full">
+                    <Briefcase className="w-8 h-8 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-green-800 mb-2">
+                      Portfolio Management
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                      Showcase your best projects with images, videos, and team details
+                    </p>
+                  </div>
+                  <div className="flex gap-4">
+                    <Button
+                      onClick={() => window.location.href = '/admin/portfolio'}
+                      className="bg-green-600 hover:bg-green-700"
+                      size="lg"
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Manage Portfolio
+                    </Button>
+                    <Button
+                      onClick={() => window.open('/portfolio', '_blank')}
+                      variant="outline"
+                      className="border-green-300 hover:bg-green-50"
+                      size="lg"
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      View Public Page
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* Projects Tab */}
           <TabsContent value="projects" className="space-y-6">
