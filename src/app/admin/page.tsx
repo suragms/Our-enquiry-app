@@ -7,21 +7,27 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Star, 
-  MessageSquare, 
-  Users, 
-  Settings, 
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Star,
+  MessageSquare,
+  Users,
+  Settings,
   LogOut,
   Eye,
   EyeOff,
   Check,
   X,
   Briefcase,
-  ExternalLink
+  ExternalLink,
+  Mail,
+  Trash,
+  Smartphone,
+  LayoutDashboard,
+  Upload,
+  AlertCircle
 } from 'lucide-react';
 
 interface User {
@@ -91,6 +97,17 @@ interface Feedback {
   };
 }
 
+interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  requirement: string;
+  isRead: boolean;
+  isStarred: boolean;
+  createdAt: string;
+}
+
 export default function AdminDashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -98,8 +115,10 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [companySettings, setCompanySettings] = useState<CompanySettings | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('projects');
+  const [activeTab, setActiveTab] = useState('inbox');
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [messages, setMessages] = useState<ContactMessage[]>([]);
+  const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
 
   // Form states
   const [projectForm, setProjectForm] = useState<ProjectForm>({
@@ -124,7 +143,7 @@ export default function AdminDashboard() {
     // Check if user is logged in
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
-    
+
     if (!token || !userData) {
       window.location.href = '/admin/login';
       return;
@@ -136,22 +155,25 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     try {
-      const [projectsRes, feedbacksRes, usersRes, settingsRes] = await Promise.all([
+      const [projectsRes, feedbacksRes, usersRes, settingsRes, messagesRes] = await Promise.all([
         fetch('/api/projects'),
         fetch('/api/feedback?includeAll=true'),
         fetch('/api/users'),
-        fetch('/api/settings')
+        fetch('/api/settings'),
+        fetch('/api/contact')
       ]);
 
       const projectsData = await projectsRes.json();
       const feedbacksData = await feedbacksRes.json();
       const usersData = await usersRes.json();
       const settingsData = await settingsRes.json();
+      const messagesData = await messagesRes.json();
 
       setProjects(projectsData);
       setFeedbacks(feedbacksData);
       setUsers(usersData);
       setCompanySettings(settingsData);
+      setMessages(messagesData);
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
@@ -223,9 +245,9 @@ export default function AdminDashboard() {
       media: prev.media.map((media, i) =>
         i === index
           ? {
-              ...media,
-              [field]: field === 'type' ? (value === 'VIDEO' ? 'VIDEO' : 'IMAGE') : value,
-            }
+            ...media,
+            [field]: field === 'type' ? (value === 'VIDEO' ? 'VIDEO' : 'IMAGE') : value,
+          }
           : media
       ),
     }));
@@ -399,6 +421,34 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!confirm('Are you sure you want to delete this message?')) return;
+    try {
+      const response = await fetch(`/api/contact/${messageId}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        setMessages(messages.filter(m => m.id !== messageId));
+        if (selectedMessage?.id === messageId) setSelectedMessage(null);
+      }
+    } catch (error) {
+      console.error('Failed to delete message:', error);
+    }
+  };
+
+  const handleMarkAsRead = async (messageId: string) => {
+    try {
+      await fetch(`/api/contact/${messageId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isRead: true }),
+      });
+      setMessages(messages.map(m => m.id === messageId ? { ...m, isRead: true } : m));
+    } catch (error) {
+      console.error('Failed to mark message as read:', error);
+    }
+  };
+
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
@@ -410,571 +460,696 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
+          <p className="text-muted-foreground">Loading dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+    <div className="min-h-screen bg-background flex">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex w-full">
+        {/* Sidebar */}
+        <aside className="w-64 bg-sidebar text-sidebar-foreground border-r border-sidebar-border hidden md:flex flex-col fixed h-full z-10">
+          <div className="p-6 border-b flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <LayoutDashboard className="w-5 h-5 text-white" />
             </div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">
-                Welcome, {user?.name}
-              </span>
-              <Badge variant="outline">{user?.role}</Badge>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
-            </div>
+            <h1 className="text-xl font-bold text-sidebar-foreground">Admin Panel</h1>
           </div>
-        </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Users className="w-6 h-6 text-blue-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Projects</p>
-                  <p className="text-2xl font-bold text-gray-900">{projects.length}</p>
-                </div>
+          <div className="p-4 flex-1 overflow-y-auto">
+            <div className="flex items-center gap-3 p-3 bg-sidebar-accent rounded-lg mb-6">
+              <div className="w-10 h-10 rounded-full bg-sidebar-primary/20 flex items-center justify-center text-sidebar-primary-foreground font-bold">
+                {user?.name?.charAt(0) || 'A'}
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <MessageSquare className="w-6 h-6 text-green-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Feedbacks</p>
-                  <p className="text-2xl font-bold text-gray-900">{feedbacks.length}</p>
-                </div>
+              <div className="overflow-hidden">
+                <p className="text-sm font-medium text-sidebar-foreground truncate">{user?.name}</p>
+                <p className="text-xs text-sidebar-foreground/70 truncate">{user?.email}</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-yellow-100 rounded-lg">
-                  <Star className="w-6 h-6 text-yellow-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Pending Approval</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {feedbacks.filter(f => !f.isApproved).length}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+            <TabsList className="flex flex-col h-auto bg-transparent space-y-1 p-0 w-full">
+              <TabsTrigger
+                value="inbox"
+                className="w-full justify-start px-4 py-3 h-auto text-sidebar-foreground/70 data-[state=active]:bg-sidebar-accent data-[state=active]:text-sidebar-foreground data-[state=active]:shadow-none rounded-md transition-colors hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+              >
+                <Mail className="w-4 h-4 mr-3" />
+                Inbox
+                {messages.filter(m => !m.isRead).length > 0 && (
+                  <Badge className="ml-auto bg-blue-600 hover:bg-blue-700">{messages.filter(m => !m.isRead).length}</Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger
+                value="projects"
+                className="w-full justify-start px-4 py-3 h-auto text-sidebar-foreground/70 data-[state=active]:bg-sidebar-accent data-[state=active]:text-sidebar-foreground data-[state=active]:shadow-none rounded-md transition-colors hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+              >
+                <Briefcase className="w-4 h-4 mr-3" /> Projects
+              </TabsTrigger>
+              <TabsTrigger
+                value="portfolio"
+                className="w-full justify-start px-4 py-3 h-auto text-sidebar-foreground/70 data-[state=active]:bg-sidebar-accent data-[state=active]:text-sidebar-foreground data-[state=active]:shadow-none rounded-md transition-colors hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+              >
+                <ExternalLink className="w-4 h-4 mr-3" /> Portfolio
+              </TabsTrigger>
+              <TabsTrigger
+                value="feedbacks"
+                className="w-full justify-start px-4 py-3 h-auto text-sidebar-foreground/70 data-[state=active]:bg-sidebar-accent data-[state=active]:text-sidebar-foreground data-[state=active]:shadow-none rounded-md transition-colors hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+              >
+                <MessageSquare className="w-4 h-4 mr-3" /> Feedbacks
+              </TabsTrigger>
+              <TabsTrigger
+                value="users"
+                className="w-full justify-start px-4 py-3 h-auto text-sidebar-foreground/70 data-[state=active]:bg-sidebar-accent data-[state=active]:text-sidebar-foreground data-[state=active]:shadow-none rounded-md transition-colors hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+              >
+                <Users className="w-4 h-4 mr-3" /> Team
+              </TabsTrigger>
+              <TabsTrigger
+                value="settings"
+                className="w-full justify-start px-4 py-3 h-auto text-sidebar-foreground/70 data-[state=active]:bg-sidebar-accent data-[state=active]:text-sidebar-foreground data-[state=active]:shadow-none rounded-md transition-colors hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+              >
+                <Settings className="w-4 h-4 mr-3" /> Settings
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <Users className="w-6 h-6 text-purple-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Team Members</p>
-                  <p className="text-2xl font-bold text-gray-900">{users.length}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+          <div className="p-4 border-t border-sidebar-border bg-sidebar">
+            <Button variant="ghost" className="w-full justify-start text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent" onClick={handleLogout}>
+              <LogOut className="w-4 h-4 mr-2" /> Logout
+            </Button>
+          </div>
+        </aside>
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="projects">Projects</TabsTrigger>
-            <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
-            <TabsTrigger value="feedbacks">Feedbacks</TabsTrigger>
-            <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
+        {/* Main Content */}
+        <main className="flex-1 md:ml-64 p-8 overflow-y-auto h-screen bg-background/50">
+          {/* Mobile Header */}
+          <div className="md:hidden mb-6 flex justify-between items-center bg-card p-4 rounded-lg shadow-sm">
+            <h1 className="text-xl font-bold text-foreground">Admin Panel</h1>
+          </div>
 
-          {/* Portfolio Tab */}
-          <TabsContent value="portfolio" className="space-y-6">
-            <Card className="border-green-200 bg-gradient-to-br from-green-50 to-white">
-              <CardContent className="p-8 text-center">
-                <div className="flex flex-col items-center gap-4">
-                  <div className="p-4 bg-green-100 rounded-full">
-                    <Briefcase className="w-8 h-8 text-green-600" />
-                  </div>
+          {/* Stats Grid - Always visible at top */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card className="border-none shadow-sm bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-2xl font-bold text-green-800 mb-2">
-                      Portfolio Management
-                    </h3>
-                    <p className="text-gray-600 mb-4">
-                      Showcase your best projects with images, videos, and team details
-                    </p>
+                    <p className="text-blue-100 text-sm font-medium mb-1">Total Projects</p>
+                    <p className="text-3xl font-bold">{projects.length}</p>
                   </div>
-                  <div className="flex gap-4">
-                    <Button
-                      onClick={() => window.location.href = '/admin/portfolio'}
-                      className="bg-green-600 hover:bg-green-700"
-                      size="lg"
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      Manage Portfolio
-                    </Button>
-                    <Button
-                      onClick={() => window.open('/portfolio', '_blank')}
-                      variant="outline"
-                      className="border-green-300 hover:bg-green-50"
-                      size="lg"
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      View Public Page
-                    </Button>
+                  <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <Briefcase className="w-6 h-6 text-white" />
                   </div>
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
 
-          {/* Projects Tab */}
-          <TabsContent value="projects" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900">Projects</h2>
-            </div>
+            <Card className="border-none shadow-sm bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-purple-100 text-sm font-medium mb-1">Total Feedbacks</p>
+                    <p className="text-3xl font-bold">{feedbacks.length}</p>
+                  </div>
+                  <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <MessageSquare className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-            <div className="grid gap-6">
-              {/* Add Project Form */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Add New Project</CardTitle>
-                  <CardDescription>Create a new project for your portfolio</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {editingProject && (
-                    <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-blue-900">
-                          Editing project: {editingProject.name}
-                        </p>
-                        <p className="text-xs text-blue-700">Save your changes or cancel to create a new project.</p>
+            <Card className="border-none shadow-sm bg-gradient-to-br from-orange-500 to-orange-600 text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-orange-100 text-sm font-medium mb-1">Pending Approval</p>
+                    <p className="text-3xl font-bold">{feedbacks.filter(f => !f.isApproved).length}</p>
+                  </div>
+                  <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <AlertCircle className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-none shadow-sm bg-gradient-to-br from-green-500 to-green-600 text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-green-100 text-sm font-medium mb-1">Team Members</p>
+                    <p className="text-3xl font-bold">{users.length}</p>
+                  </div>
+                  <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <Users className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          <TabsContent value="inbox" className="space-y-6 mt-0">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[600px]">
+              <div className="md:col-span-1 bg-card rounded-lg border shadow-sm overflow-hidden flex flex-col">
+                <div className="p-4 border-b bg-muted/50">
+                  <h3 className="font-semibold text-foreground">Messages</h3>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  {messages.length === 0 ? (
+                    <div className="p-8 text-center text-muted-foreground">
+                      No messages
+                    </div>
+                  ) : (
+                    messages.map((message) => (
+                      <div
+                        key={message.id}
+                        onClick={() => {
+                          setSelectedMessage(message);
+                          if (!message.isRead) handleMarkAsRead(message.id);
+                        }}
+                        className={`p-4 border-b cursor-pointer hover:bg-accent transition-colors ${selectedMessage?.id === message.id ? 'bg-accent' : ''
+                          } ${!message.isRead ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
+                      >
+                        <div className="flex justify-between items-start mb-1">
+                          <h4 className={`font-medium truncate ${!message.isRead ? 'text-blue-600 dark:text-blue-400' : 'text-foreground'}`}>
+                            {message.name}
+                          </h4>
+                          <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
+                            {new Date(message.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground truncate">{message.requirement}</p>
                       </div>
-                      <Button type="button" variant="ghost" size="sm" onClick={handleCancelEdit}>
-                        Cancel Edit
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="md:col-span-2 bg-card rounded-lg border shadow-sm overflow-hidden flex flex-col">
+                {selectedMessage ? (
+                  <>
+                    <div className="p-6 border-b flex justify-between items-start bg-muted/50">
+                      <div>
+                        <h2 className="text-xl font-bold text-foreground mb-1">Contact Inquiry</h2>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <span className="font-medium text-foreground">{selectedMessage.name}</span>
+                          <span>&lt;{selectedMessage.email}&gt;</span>
+                        </div>
+                      </div>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDeleteMessage(selectedMessage.id)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
                       </Button>
                     </div>
-                  )}
-                  <form onSubmit={handleSubmitProject} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Project Name
-                        </label>
-                        <Input
-                          value={projectForm.name}
-                          onChange={(e) => setProjectForm({ ...projectForm, name: e.target.value })}
-                          placeholder="Project name"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Status
-                        </label>
-                        <select
-                          value={projectForm.status}
-                          onChange={(e) => setProjectForm({ ...projectForm, status: e.target.value })}
-                          className="w-full p-2 border border-gray-300 rounded-md"
-                        >
-                          <option value="IN_PROGRESS">In Progress</option>
-                          <option value="DELIVERED">Delivered</option>
-                          <option value="COMPLETED">Completed</option>
-                        </select>
+                    <div className="p-6 flex-1 overflow-y-auto">
+                      <div className="prose dark:prose-invert max-w-none">
+                        <p className="whitespace-pre-wrap text-foreground">{selectedMessage.requirement}</p>
                       </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Overview
-                      </label>
-                      <Textarea
-                        value={projectForm.overview}
-                        onChange={(e) => setProjectForm({ ...projectForm, overview: e.target.value })}
-                        placeholder="Project overview"
-                        required
-                      />
+                    <div className="p-4 border-t bg-muted/50 flex justify-end">
+                      <Button variant="outline" onClick={() => window.location.href = `mailto:${selectedMessage.email}`}>
+                        <Mail className="w-4 h-4 mr-2" />
+                        Reply via Email
+                      </Button>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Tech Stack
-                      </label>
-                      <Input
-                        value={projectForm.techStack}
-                        onChange={(e) => setProjectForm({ ...projectForm, techStack: e.target.value })}
-                        placeholder="React, Node.js, MongoDB"
-                      />
-                    </div>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-gray-700">Project Media (optional)</p>
-                          <p className="text-xs text-gray-500">
-                            Add image or video links to showcase the project.
-                          </p>
-                        </div>
-                        <Button type="button" variant="outline" size="sm" onClick={handleAddMediaField}>
-                          <Plus className="w-4 h-4 mr-1" />
-                          Add Media
-                        </Button>
-                      </div>
-                      {projectForm.media.length === 0 && (
-                        <p className="text-sm text-gray-500">No media added yet.</p>
-                      )}
-                      {projectForm.media.map((media, index) => (
-                        <div key={index} className="border rounded-md p-4 space-y-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Media Type
-                              </label>
-                              <select
-                                value={media.type}
-                                onChange={(e) => handleMediaChange(index, 'type', e.target.value)}
-                                className="w-full p-2 border border-gray-300 rounded-md"
-                              >
-                                <option value="IMAGE">Image</option>
-                                <option value="VIDEO">Video</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Media URL (optional)
-                              </label>
-                              <Input
-                                value={media.url}
-                                onChange={(e) => handleMediaChange(index, 'url', e.target.value)}
-                                placeholder="https://example.com/media.jpg"
-                                type="text"
-                              />
-                            </div>
+                  </>
+                ) : (
+                  <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-8">
+                    <Mail className="w-12 h-12 mb-4 opacity-20" />
+                    <p>Select a message to view details</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+          <TabsContent value="projects" className="space-y-6 mt-0">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-foreground">Projects</h2>
+              <Button onClick={() => {
+                setEditingProject(null);
+                setProjectForm({ name: '', overview: '', techStack: '', status: 'IN_PROGRESS', media: [] });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}>
+                <Plus className="w-4 h-4 mr-2" /> Add Project
+              </Button>
+            </div>
+
+                <Card className="border-none shadow-sm">
+                  <CardHeader>
+                    <CardTitle>{editingProject ? 'Edit Project' : 'Add New Project'}</CardTitle>
+                    <CardDescription>Fill in the details to {editingProject ? 'update' : 'create'} a project</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form onSubmit={handleSubmitProject} className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-muted-foreground mb-2">Project Name</label>
+                            <Input
+                              value={projectForm.name}
+                              onChange={(e) => setProjectForm({ ...projectForm, name: e.target.value })}
+                              placeholder="e.g., E-commerce Platform"
+                              required
+                            />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Upload File
-                            </label>
+                            <label className="block text-sm font-medium text-muted-foreground mb-2">Tech Stack</label>
                             <Input
-                              type="file"
-                              accept="image/*,video/*"
-                              onChange={(e) => handleUploadMediaFile(index, e.target.files)}
-                              disabled={media.uploading}
+                              value={projectForm.techStack}
+                              onChange={(e) => setProjectForm({ ...projectForm, techStack: e.target.value })}
+                              placeholder="e.g., React, Node.js, MongoDB"
                             />
-                            <p className="text-xs text-gray-500 mt-2">
-                              Uploading a file will automatically fill the media URL field.
-                            </p>
-                            {media.uploading && (
-                              <p className="text-xs text-blue-600 mt-1">Uploading file...</p>
-                            )}
                           </div>
-                          <div className="flex justify-end">
+                          <div>
+                            <label className="block text-sm font-medium text-muted-foreground mb-2">Status</label>
+                            <select
+                              value={projectForm.status}
+                              onChange={(e) => setProjectForm({ ...projectForm, status: e.target.value as 'IN_PROGRESS' | 'COMPLETED' })}
+                              className="w-full p-2 border border-border rounded-md bg-background"
+                            >
+                              <option value="IN_PROGRESS">In Progress</option>
+                              <option value="COMPLETED">Completed</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-muted-foreground mb-2">Overview</label>
+                          <Textarea
+                            value={projectForm.overview}
+                            onChange={(e) => setProjectForm({ ...projectForm, overview: e.target.value })}
+                            placeholder="Project description..."
+                            className="h-[200px]"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <label className="block text-sm font-medium text-muted-foreground">Media (Images/Videos)</label>
+                          <Button type="button" variant="outline" size="sm" onClick={handleAddMediaField}>
+                            <Plus className="w-4 h-4 mr-2" /> Add Media URL
+                          </Button>
+                        </div>
+                        {projectForm.media.map((media, index) => (
+                          <div key={index} className="flex gap-4 items-start p-4 border rounded-lg bg-muted/30">
+                            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <select
+                                  value={media.type}
+                                  onChange={(e) => handleMediaChange(index, 'type', e.target.value)}
+                                  className="w-full p-2 border border-border rounded-md bg-background"
+                                >
+                                  <option value="IMAGE">Image</option>
+                                  <option value="VIDEO">Video</option>
+                                </select>
+                              </div>
+                              <div className="flex gap-2">
+                                <Input
+                                  value={media.url}
+                                  onChange={(e) => handleMediaChange(index, 'url', e.target.value)}
+                                  placeholder="Media URL"
+                                  className="flex-1"
+                                />
+                                <div className="relative">
+                                  <input
+                                    type="file"
+                                    id={`file-${index}`}
+                                    className="hidden"
+                                    accept="image/*,video/*"
+                                    onChange={(e) => handleUploadMediaFile(index, e.target.files)}
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => document.getElementById(`file-${index}`)?.click()}
+                                    disabled={media.uploading}
+                                  >
+                                    {media.uploading ? (
+                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                                    ) : (
+                                      <Upload className="w-4 h-4" />
+                                    )}
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
                             <Button
                               type="button"
                               variant="ghost"
-                              size="sm"
-                              className="text-red-600"
+                              size="icon"
+                              className="text-destructive hover:text-destructive/90"
                               onClick={() => handleRemoveMediaField(index)}
                             >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex justify-end gap-4">
+                        {editingProject && (
+                          <Button type="button" variant="outline" onClick={handleCancelEdit}>
+                            Cancel
+                          </Button>
+                        )}
+                        <Button type="submit" size="lg">
+                          {editingProject ? 'Update Project' : 'Create Project'}
+                        </Button>
+                      </div>
+                    </form>
+                  </CardContent>
+                </Card>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {projects.map((project) => (
+                    <Card key={project.id} className="border-none shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
+                      <div className="relative h-48 bg-muted">
+                        {project.media && project.media.length > 0 ? (
+                          project.media[0].type === 'VIDEO' ? (
+                            <video
+                              src={project.media[0].url}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <img
+                              src={project.media[0].url}
+                              alt={project.name}
+                              className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                            />
+                          )
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                            <Briefcase className="w-12 h-12 opacity-20" />
+                          </div>
+                        )}
+                        <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            size="icon"
+                            variant="secondary"
+                            className="h-8 w-8 bg-white/90 hover:bg-white"
+                            onClick={() => handleEditProject(project)}
+                          >
+                            <Edit className="w-4 h-4 text-blue-600" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="secondary"
+                            className="h-8 w-8 bg-white/90 hover:bg-white"
+                            onClick={() => handleDeleteProject(project.id)}
+                          >
+                            <Trash2 className="w-4 h-4 text-red-600" />
+                          </Button>
+                        </div>
+                        <div className="absolute bottom-2 right-2">
+                          <Badge variant={project.status === 'COMPLETED' ? 'default' : 'secondary'} className="shadow-sm">
+                            {project.status === 'COMPLETED' ? 'Completed' : 'In Progress'}
+                          </Badge>
+                        </div>
+                      </div>
+                      <CardContent className="p-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-2">{project.name}</h3>
+                        <p className="text-muted-foreground text-sm line-clamp-2 mb-4">{project.overview}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {project.techStack?.split(',').map((tech, i) => (
+                            <Badge key={i} variant="outline" className="text-xs">
+                              {tech.trim()}
+                            </Badge>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="portfolio" className="space-y-6 mt-0">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold text-foreground">Portfolio Management</h2>
+                </div>
+                <Card className="border-none shadow-sm bg-gradient-to-br from-green-500 to-green-600 text-white">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-2xl font-bold text-white mb-2">
+                          Portfolio Management
+                        </h3>
+                        <p className="text-green-100 mb-4">
+                          Showcase your best projects with images, videos, and team details
+                        </p>
+                        <div className="flex gap-4">
+                          <Button
+                            onClick={() => window.location.href = '/admin/portfolio'}
+                            className="bg-white text-green-600 hover:bg-green-50"
+                            size="lg"
+                          >
+                            <Edit className="w-4 h-4 mr-2" />
+                            Manage Portfolio
+                          </Button>
+                          <Button
+                            onClick={() => window.open('/portfolio', '_blank')}
+                            variant="outline"
+                            className="border-green-400 text-white hover:bg-green-500"
+                            size="lg"
+                          >
+                            <ExternalLink className="w-4 h-4 mr-2" />
+                            View Public Page
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="p-4 bg-white/20 rounded-full backdrop-blur-sm">
+                        <Briefcase className="w-12 h-12 text-white" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="feedbacks" className="space-y-6 mt-0">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold text-foreground">Client Feedbacks</h2>
+                </div>
+
+                <div className="grid gap-4">
+                  {feedbacks.map((feedback) => (
+                    <Card key={feedback.id} className="border-none shadow-sm hover:shadow-md transition-shadow">
+                      <CardContent className="p-6">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="text-lg font-semibold text-foreground">{feedback.name}</h3>
+                              {feedback.company && (
+                                <Badge variant="outline">{feedback.company}</Badge>
+                              )}
+                              <div className="flex gap-1">
+                                {renderStars(feedback.rating)}
+                              </div>
+                            </div>
+                            <p className="text-muted-foreground mb-2">{feedback.content}</p>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                              <span>Project: {feedback.project.name}</span>
+                              <span>{new Date(feedback.createdAt).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <div className="flex gap-2">
+                              <Button
+                                variant={feedback.isApproved ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => handleApproveFeedback(feedback.id, !feedback.isApproved)}
+                              >
+                                {feedback.isApproved ? (
+                                  <><Check className="w-4 h-4 mr-1" /> Approved</>
+                                ) : (
+                                  <><X className="w-4 h-4 mr-1" /> Approve</>
+                                )}
+                              </Button>
+                              <Button
+                                variant={feedback.isPublic ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => handleTogglePublicFeedback(feedback.id, !feedback.isPublic)}
+                              >
+                                {feedback.isPublic ? (
+                                  <><Eye className="w-4 h-4 mr-1" /> Public</>
+                                ) : (
+                                  <><EyeOff className="w-4 h-4 mr-1" /> Private</>
+                                )}
+                              </Button>
+                            </div>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleDeleteFeedback(feedback.id)}
+                            >
                               <Trash2 className="w-4 h-4 mr-1" />
-                              Remove
+                              Delete
                             </Button>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                    <Button type="submit" disabled={isMediaUploading}>
-                      {isMediaUploading
-                        ? 'Uploading media...'
-                        : isEditingProject
-                          ? 'Save Changes'
-                          : 'Create Project'}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
 
-              {/* Projects List */}
-              <div className="grid gap-4">
-                {projects.map((project) => (
-                  <Card key={project.id}>
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="text-lg font-semibold text-gray-900">{project.name}</h3>
-                            <Badge variant={project.status === 'DELIVERED' ? 'default' : 'secondary'}>
-                              {project.status}
-                            </Badge>
-                          </div>
-                          <p className="text-gray-600 mb-2">{project.overview}</p>
-                          {project.techStack && (
-                            <p className="text-sm text-gray-500">Tech: {project.techStack}</p>
-                          )}
+              <TabsContent value="users" className="space-y-6 mt-0">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold text-foreground">Team Members</h2>
+                </div>
+
+                <Card className="border-none shadow-sm">
+                  <CardHeader>
+                    <CardTitle>Add New User</CardTitle>
+                    <CardDescription>Create a new user account</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form onSubmit={handleCreateUser} className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-muted-foreground mb-2">
+                            Name
+                          </label>
+                          <Input
+                            value={userForm.name}
+                            onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
+                            placeholder="John Doe"
+                            required
+                          />
                         </div>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" onClick={() => handleEditProject(project)}>
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={() => handleDeleteProject(project.id)}>
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                        <div>
+                          <label className="block text-sm font-medium text-muted-foreground mb-2">
+                            Email
+                          </label>
+                          <Input
+                            type="email"
+                            value={userForm.email}
+                            onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                            placeholder="john@example.com"
+                            required
+                          />
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* Feedbacks Tab */}
-          <TabsContent value="feedbacks" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900">Client Feedbacks</h2>
-            </div>
-
-            <div className="grid gap-4">
-              {feedbacks.map((feedback) => (
-                <Card key={feedback.id}>
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900">{feedback.name}</h3>
-                          {feedback.company && (
-                            <Badge variant="outline">{feedback.company}</Badge>
-                          )}
-                          <div className="flex gap-1">
-                            {renderStars(feedback.rating)}
-                          </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-muted-foreground mb-2">
+                            Password
+                          </label>
+                          <Input
+                            type="password"
+                            value={userForm.password}
+                            onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
+                            placeholder="Password"
+                            required
+                          />
                         </div>
-                        <p className="text-gray-600 mb-2">{feedback.content}</p>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <span>Project: {feedback.project.name}</span>
-                          <span>{new Date(feedback.createdAt).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <div className="flex gap-2">
-                          <Button
-                            variant={feedback.isApproved ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => handleApproveFeedback(feedback.id, !feedback.isApproved)}
+                        <div>
+                          <label className="block text-sm font-medium text-muted-foreground mb-2">
+                            Role
+                          </label>
+                          <select
+                            value={userForm.role}
+                            onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
+                            className="w-full p-2 border border-border rounded-md"
                           >
-                            {feedback.isApproved ? (
-                              <><Check className="w-4 h-4 mr-1" /> Approved</>
-                            ) : (
-                              <><X className="w-4 h-4 mr-1" /> Approve</>
-                            )}
-                          </Button>
-                          <Button
-                            variant={feedback.isPublic ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => handleTogglePublicFeedback(feedback.id, !feedback.isPublic)}
-                          >
-                            {feedback.isPublic ? (
-                              <><Eye className="w-4 h-4 mr-1" /> Public</>
-                            ) : (
-                              <><EyeOff className="w-4 h-4 mr-1" /> Private</>
-                            )}
-                          </Button>
+                            <option value="STAFF">Staff</option>
+                            <option value="ADMIN">Admin</option>
+                            <option value="SUPER_ADMIN">Super Admin</option>
+                          </select>
                         </div>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDeleteFeedback(feedback.id)}
-                        >
-                          <Trash2 className="w-4 h-4 mr-1" />
-                          Delete
-                        </Button>
                       </div>
-                    </div>
+                      <Button type="submit">Create User</Button>
+                    </form>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          </TabsContent>
 
-          {/* Users Tab */}
-          <TabsContent value="users" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900">Team Members</h2>
-            </div>
+                <div className="grid gap-4">
+                  {users.map((user) => (
+                    <Card key={user.id} className="border-none shadow-sm hover:shadow-md transition-shadow">
+                      <CardContent className="p-6">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <h3 className="text-lg font-semibold text-foreground">{user.name}</h3>
+                            <p className="text-muted-foreground">{user.email}</p>
+                          </div>
+                          <Badge variant="outline">{user.role}</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Add New User</CardTitle>
-                <CardDescription>Create a new user account</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleCreateUser} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Name
-                      </label>
-                      <Input
-                        value={userForm.name}
-                        onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
-                        placeholder="John Doe"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Email
-                      </label>
-                      <Input
-                        type="email"
-                        value={userForm.email}
-                        onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-                        placeholder="john@example.com"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Password
-                      </label>
-                      <Input
-                        type="password"
-                        value={userForm.password}
-                        onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
-                        placeholder="Password"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Role
-                      </label>
-                      <select
-                        value={userForm.role}
-                        onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
-                        className="w-full p-2 border border-gray-300 rounded-md"
+              <TabsContent value="settings" className="space-y-6 mt-0">
+                <h2 className="text-2xl font-bold text-foreground">Company Settings</h2>
+
+                <Card className="border-none shadow-sm">
+                  <CardHeader>
+                    <CardTitle>Company Information</CardTitle>
+                    <CardDescription>Manage company details and contact information</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {companySettings ? (
+                      <form
+                        onSubmit={async (e) => {
+                          e.preventDefault();
+                          try {
+                            const response = await fetch('/api/settings', {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify(companySettings),
+                            });
+                            if (response.ok) {
+                              alert('Settings updated successfully!');
+                              fetchData();
+                            }
+                          } catch (error) {
+                            console.error('Failed to update settings:', error);
+                            alert('Failed to update settings');
+                          }
+                        }}
+                        className="space-y-6"
                       >
-                        <option value="STAFF">Staff</option>
-                        <option value="ADMIN">Admin</option>
-                        <option value="SUPER_ADMIN">Super Admin</option>
-                      </select>
-                    </div>
-                  </div>
-                  <Button type="submit">Create User</Button>
-                </form>
-              </CardContent>
-            </Card>
-
-            <div className="grid gap-4">
-              {users.map((user) => (
-                <Card key={user.id}>
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">{user.name}</h3>
-                        <p className="text-gray-600">{user.email}</p>
-                      </div>
-                      <Badge variant="outline">{user.role}</Badge>
-                    </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <label className="block text-sm font-medium text-muted-foreground mb-2">Company Name</label>
+                            <Input value={companySettings.companyName || ''} onChange={(e) => setCompanySettings({ ...companySettings, companyName: e.target.value })} />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-muted-foreground mb-2">Primary Email</label>
+                            <Input type="email" value={companySettings.primaryEmail || ''} onChange={(e) => setCompanySettings({ ...companySettings, primaryEmail: e.target.value })} />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-muted-foreground mb-2">Primary WhatsApp</label>
+                            <Input value={companySettings.primaryWhatsApp || ''} onChange={(e) => setCompanySettings({ ...companySettings, primaryWhatsApp: e.target.value })} />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-muted-foreground mb-2">Secondary WhatsApp</label>
+                            <Input value={companySettings.secondaryWhatsApp || ''} onChange={(e) => setCompanySettings({ ...companySettings, secondaryWhatsApp: e.target.value })} />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-muted-foreground mb-2">Lead 1: {companySettings.leadName1}</label>
+                            <Input value={companySettings.leadWhatsApp1 || ''} onChange={(e) => setCompanySettings({ ...companySettings, leadWhatsApp1: e.target.value })} placeholder="WhatsApp" />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-muted-foreground mb-2">Lead 2: {companySettings.leadName2}</label>
+                            <Input value={companySettings.leadWhatsApp2 || ''} onChange={(e) => setCompanySettings({ ...companySettings, leadWhatsApp2: e.target.value })} placeholder="WhatsApp" />
+                          </div>
+                        </div>
+                        <Button type="submit" size="lg">Save Settings</Button>
+                      </form>
+                    ) : (
+                      <p className="text-muted-foreground">Loading settings...</p>
+                    )}
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Company Settings</h2>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Company Information</CardTitle>
-                <CardDescription>Manage company details and contact information</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {companySettings ? (
-                  <form
-                    onSubmit={async (e) => {
-                      e.preventDefault();
-                      try {
-                        const response = await fetch('/api/settings', {
-                          method: 'PATCH',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify(companySettings),
-                        });
-                        if (response.ok) {
-                          alert('Settings updated successfully!');
-                          fetchData();
-                        }
-                      } catch (error) {
-                        console.error('Failed to update settings:', error);
-                        alert('Failed to update settings');
-                      }
-                    }}
-                    className="space-y-6"
-                  >
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
-                        <Input value={companySettings.companyName || ''} onChange={(e) => setCompanySettings({ ...companySettings, companyName: e.target.value })} />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Primary Email</label>
-                        <Input type="email" value={companySettings.primaryEmail || ''} onChange={(e) => setCompanySettings({ ...companySettings, primaryEmail: e.target.value })} />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Primary WhatsApp</label>
-                        <Input value={companySettings.primaryWhatsApp || ''} onChange={(e) => setCompanySettings({ ...companySettings, primaryWhatsApp: e.target.value })} />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Secondary WhatsApp</label>
-                        <Input value={companySettings.secondaryWhatsApp || ''} onChange={(e) => setCompanySettings({ ...companySettings, secondaryWhatsApp: e.target.value })} />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Lead 1: {companySettings.leadName1}</label>
-                        <Input value={companySettings.leadWhatsApp1 || ''} onChange={(e) => setCompanySettings({ ...companySettings, leadWhatsApp1: e.target.value })} placeholder="WhatsApp" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Lead 2: {companySettings.leadName2}</label>
-                        <Input value={companySettings.leadWhatsApp2 || ''} onChange={(e) => setCompanySettings({ ...companySettings, leadWhatsApp2: e.target.value })} placeholder="WhatsApp" />
-                      </div>
-                    </div>
-                    <Button type="submit" size="lg">Save Settings</Button>
-                  </form>
-                ) : (
-                  <p className="text-gray-600">Loading settings...</p>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </main>
-    </div>
-  );
+              </TabsContent>
+            </main>
+          </Tabs>
+        </div>
+        );
 }

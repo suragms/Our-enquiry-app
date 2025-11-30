@@ -80,7 +80,7 @@ model Task {
   deadline    DateTime?
   notes       String?
   createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  updatedAt   DateTime @updatedAt
 
   projectId   String
   project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -172,4 +172,16 @@ enum TaskStatus {
   PENDING
   IN_PROGRESS
   COMPLETED
+}
+
+model ContactMessage {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  requirement String
+  isRead      Boolean  @default(false)
+  isStarred   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
