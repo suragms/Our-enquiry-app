@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -156,11 +157,11 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     try {
       const [projectsRes, feedbacksRes, usersRes, settingsRes, messagesRes] = await Promise.all([
-        fetch('/api/projects'),
-        fetch('/api/feedback?includeAll=true'),
-        fetch('/api/users'),
-        fetch('/api/settings'),
-        fetch('/api/contact')
+        fetch(`${API_URL}/api/projects`),
+        fetch(`${API_URL}/api/feedback?includeAll=true`),
+        fetch(`${API_URL}/api/users`),
+        fetch(`${API_URL}/api/settings`),
+        fetch(`${API_URL}/api/contact`)
       ]);
 
       const projectsData = await projectsRes.json();
@@ -189,28 +190,29 @@ export default function AdminDashboard() {
 
   const handleSubmitProject = async (e: React.FormEvent) => {
     e.preventDefault();
+    const isEditing = Boolean(editingProject);
+
+    const payload: any = {
+      name: projectForm.name,
+      overview: projectForm.overview,
+      techStack: projectForm.techStack,
+      status: projectForm.status,
+      media: projectForm.media
+        .filter((item) => item.url.trim())
+        .map((item) => ({
+          type: item.type,
+          url: item.url.trim(),
+        })),
+    };
+
+    if (!isEditing) {
+      payload.createdById = user?.id;
+    }
+
+    const endpoint = isEditing ? `${API_URL}/api/projects/${editingProject?.id}` : `${API_URL}/api/projects`;
+    const method = isEditing ? 'PATCH' : 'POST';
+
     try {
-      const isEditing = Boolean(editingProject);
-      const endpoint = isEditing ? `/api/projects/${editingProject?.id}` : '/api/projects';
-      const method = isEditing ? 'PATCH' : 'POST';
-
-      const payload: any = {
-        name: projectForm.name,
-        overview: projectForm.overview,
-        techStack: projectForm.techStack,
-        status: projectForm.status,
-        media: projectForm.media
-          .filter((item) => item.url.trim())
-          .map((item) => ({
-            type: item.type,
-            url: item.url.trim(),
-          })),
-      };
-
-      if (!isEditing) {
-        payload.createdById = user?.id;
-      }
-
       const response = await fetch(endpoint, {
         method,
         headers: {
@@ -277,7 +279,7 @@ export default function AdminDashboard() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('/api/upload', {
+      const response = await fetch(`${API_URL}/api/upload`, {
         method: 'POST',
         body: formData,
       });
@@ -329,7 +331,7 @@ export default function AdminDashboard() {
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -348,7 +350,7 @@ export default function AdminDashboard() {
 
   const handleApproveFeedback = async (feedbackId: string, isApproved: boolean) => {
     try {
-      const response = await fetch(`/api/feedback/manage/${feedbackId}`, {
+      const response = await fetch(`${API_URL}/api/feedback/manage/${feedbackId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -366,7 +368,7 @@ export default function AdminDashboard() {
 
   const handleTogglePublicFeedback = async (feedbackId: string, isPublic: boolean) => {
     try {
-      const response = await fetch(`/api/feedback/manage/${feedbackId}`, {
+      const response = await fetch(`${API_URL}/api/feedback/manage/${feedbackId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -383,10 +385,10 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteProject = async (projectId: string) => {
-    if (!confirm('Are you sure you want to delete this project?')) return;
+    if (!window.confirm('Are you sure you want to delete this project?')) return;
 
     try {
-      const response = await fetch(`/api/projects/${projectId}`, {
+      const response = await fetch(`${API_URL}/api/projects/${projectId}`, {
         method: 'DELETE',
       });
 
@@ -406,7 +408,7 @@ export default function AdminDashboard() {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(`/api/feedback/manage/${feedbackId}`, {
+      const response = await fetch(`${API_URL}/api/feedback/manage/${feedbackId}`, {
         method: 'DELETE',
       });
 
@@ -422,9 +424,9 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteMessage = async (messageId: string) => {
-    if (!confirm('Are you sure you want to delete this message?')) return;
+    if (!window.confirm('Are you sure you want to delete this message?')) return;
     try {
-      const response = await fetch(`/api/contact/${messageId}`, {
+      const response = await fetch(`${API_URL}/api/contact/${messageId}`, {
         method: 'DELETE',
       });
       if (response.ok) {
@@ -438,7 +440,7 @@ export default function AdminDashboard() {
 
   const handleMarkAsRead = async (messageId: string) => {
     try {
-      await fetch(`/api/contact/${messageId}`, {
+      await fetch(`${API_URL}/api/contact/${messageId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isRead: true }),
@@ -1098,7 +1100,7 @@ export default function AdminDashboard() {
                     onSubmit={async (e) => {
                       e.preventDefault();
                       try {
-                        const response = await fetch('/api/settings', {
+                        const response = await fetch(`${API_URL}/api/settings`, {
                           method: 'PATCH',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify(companySettings),
