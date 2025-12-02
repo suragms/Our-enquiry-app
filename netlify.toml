@@ -12,7 +12,7 @@
     "bcryptjs",
     "mongodb"
   ]
-  included_files = ["prisma/**", ".prisma/**", "node_modules/.prisma/**", "node_modules/@prisma/**"]
+  included_files = ["prisma/schema.prisma"]
 
 # Environment variables (Set these in Netlify Dashboard)
 # DATABASE_URL - MongoDB connection string
