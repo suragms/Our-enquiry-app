@@ -15,8 +15,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
-![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
-![NextAuth.js](https://img.shields.io/badge/NextAuth.js-black?style=for-the-badge&logo=next.js&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
 
 ---
 
@@ -109,20 +108,33 @@ Get the project up and running on your local machine:
     ```
 
 4.  **Set up environment variables**
-    *   Copy `.env.example` to `.env` and update the values.
+    *   Copy `.env.example` to `.env` and update with your MongoDB connection string.
+    *   Or use the existing `.env` file (already configured for the team)
 
-5.  **Run database migrations**
+5.  **Generate Prisma Client**
     ```bash
-    npx prisma migrate dev
+    npx prisma generate
     ```
 
-6.  **Start the development server**
+6.  **Seed the database with admin user**
+    ```bash
+    npm run db:seed
+    ```
+
+7.  **Verify setup**
+    ```bash
+    npm run verify
+    ```
+
+8.  **Start the development server**
     ```bash
     npm run dev
     ```
 
-7.  **Open your browser**
+9.  **Open your browser**
     *   Visit [http://localhost:3000](http://localhost:3000)
+    *   Admin login: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
+    *   Default credentials: `admin@example.com` / `admin123`
 
 ---
 
@@ -160,15 +172,52 @@ src/
 *   **shadcn/ui**: Beautifully designed, accessible, and customizable components.
 
 ### **Backend Technologies**
-*   **Next.js API Routes**: Serverless functions handling backend logic seamlessly.
+*   **Node.js/Express**: Serverless backend API with Express framework.
 *   **Prisma**: A modern ORM for type-safe database access and management.
-*   **SQLite**: A lightweight, serverless database engine perfect for development and testing.
-*   **NextAuth.js**: A complete authentication solution for Next.js applications.
+*   **MongoDB**: Cloud-hosted NoSQL database via MongoDB Atlas for scalable data storage.
+*   **JWT Authentication**: Custom JWT-based authentication with bcrypt password hashing.
 
 ### **Development Tools**
 *   **ESLint**: Enforces code quality and consistency.
 *   **Prettier**: Automates code formatting for a clean codebase.
 *   **Jest**: A delightful JavaScript testing framework.
+
+---
+
+## 🚀 DEPLOYMENT TO NETLIFY
+
+For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md)
+
+### Quick Deployment Checklist:
+
+1. ✅ Ensure MongoDB Atlas cluster is running
+2. ✅ Run `npm run verify` to check local setup
+3. ✅ Set environment variables in Netlify Dashboard:
+   - `DATABASE_URL` (MongoDB connection string)
+   - `JWT_SECRET` (secret key for JWT tokens)
+   - `NODE_ENV` (set to "production")
+4. ✅ Push code to GitHub repository
+5. ✅ Connect repository to Netlify
+6. ✅ Deploy and test admin login
+
+**Admin Credentials:**
+- Email: `admin@example.com`
+- Password: `admin123`
+- ⚠️ Change password after first login!
+
+**Helpful Commands:**
+```bash
+# Verify database and setup
+npm run verify
+
+# Seed admin user
+npm run db:seed
+
+# Build for production
+npm run build
+```
+
+For troubleshooting, see [FIXES_SUMMARY.md](./FIXES_SUMMARY.md)
 
 ---
 

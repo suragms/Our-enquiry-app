@@ -4,9 +4,20 @@
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["@prisma/client"]
+  external_node_modules = ["@prisma/client", ".prisma/client", "@prisma/engines", "prisma"]
+  included_files = ["prisma/**", ".prisma/**"]
+
+# Environment variables (Set these in Netlify Dashboard)
+# DATABASE_URL - MongoDB connection string
+# JWT_SECRET - Secret key for JWT tokens
+# NODE_ENV - Set to 'production'
 
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/api"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
   status = 200
