@@ -3,12 +3,23 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
+import os from 'os';
+
 const router = express.Router();
 
 // Ensure upload directory exists
-const uploadDir = path.join(process.cwd(), 'public/uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
+// Use /tmp in Netlify/Lambda environment to avoid Read-only file system crash
+const isNetlify = process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_VERSION;
+const uploadDir = isNetlify
+    ? path.join(os.tmpdir(), 'uploads')
+    : path.join(process.cwd(), 'public/uploads');
+
+try {
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+    }
+} catch (error) {
+    console.warn('Failed to create upload directory:', error);
 }
 
 const storage = multer.diskStorage({
