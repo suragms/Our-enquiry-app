@@ -1,48 +1,37 @@
 import express from 'express';
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-
-import os from 'os';
 
 const router = express.Router();
 
-// Ensure upload directory exists
-// Use /tmp in Netlify/Lambda environment to avoid Read-only file system crash
-const isNetlify = process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_VERSION;
-const uploadDir = isNetlify
-    ? path.join(os.tmpdir(), 'uploads')
-    : path.join(process.cwd(), 'public/uploads');
+// Use memory storage to avoid filesystem issues on serverless
+const storage = multer.memoryStorage();
 
-try {
-    if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-    }
-} catch (error) {
-    console.warn('Failed to create upload directory:', error);
-}
-
-const storage = multer.diskStorage({
-    destination: (_req, _file, cb) => {
-        cb(null, uploadDir);
-    },
-    filename: (_req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
+const upload = multer({
+    storage,
+    limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB limit
     }
 });
 
-const upload = multer({ storage });
-
 router.post('/', upload.single('file'), (req, res) => {
-    if (!req.file) {
-        res.status(400).json({ error: 'No file uploaded' });
-        return;
-    }
+    try {
+        if (!req.file) {
+            res.status(400).json({ error: 'No file uploaded' });
+            return;
+        }
 
-    // Return URL relative to public
-    const url = `/uploads/${req.file.filename}`;
-    res.json({ url });
+        // Convert buffer to base64
+        const b64 = Buffer.from(req.file.buffer).toString('base64');
+        const mime = req.file.mimetype;
+        const url = `data:${mime};base64,${b64}`;
+
+        res.json({ url });
+    } catch (error) {
+        console.error('Upload error:', error);
+        res.status(500).json({ error: 'Upload failed' });
+    }
 });
 
 export default router;
+
+
