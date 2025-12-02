@@ -15,6 +15,7 @@ export const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
+app.options('*', cors());
 app.use(express.json());
 
 app.get('/api/health', (req, res) => {

@@ -5,18 +5,22 @@ const router = express.Router();
 
 router.post('/login', async (req, res) => {
     try {
+        console.log('Login attempt:', req.body.email);
         const { email, password } = req.body;
         const user = await authenticateUser(email, password);
 
         if (!user) {
+            console.log('Login failed: Invalid credentials for', email);
             res.status(401).json({ error: 'Invalid credentials' });
             return;
         }
 
+        console.log('Login successful for:', email);
         const token = generateToken(user.id, user.role);
         res.json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role } });
     } catch (error) {
-        res.status(500).json({ error: 'Login failed' });
+        console.error('Login error:', error);
+        res.status(500).json({ error: 'Login failed', details: (error as Error).message });
     }
 });
 
