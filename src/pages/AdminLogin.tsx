@@ -38,7 +38,11 @@ export default function AdminLogin() {
                 localStorage.setItem('user', JSON.stringify(data.user));
                 navigate('/admin');
             } else {
-                setError(data.error || 'Login failed');
+                console.error('Login error response:', data);
+                const errorMessage = data.details
+                    ? `Login failed: ${data.details}`
+                    : (data.error || 'Login failed');
+                setError(errorMessage);
             }
         } catch (error) {
             setError('Network error. Please try again.');
