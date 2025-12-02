@@ -23,7 +23,7 @@ export default function AdminLogin() {
         setError('');
 
         try {
-            const response = await fetch(`${API_URL}/auth/login`, {
+            const response = await fetch(`/.netlify/functions/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
