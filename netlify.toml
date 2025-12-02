@@ -4,11 +4,8 @@
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = [
     "@prisma/client",
     ".prisma/client",
-    "@prisma/engines",
-    "prisma",
     "bcryptjs",
     "mongodb"
   ]
