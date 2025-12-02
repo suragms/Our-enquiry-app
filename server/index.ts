@@ -20,7 +20,7 @@ app.use(express.json());
 
 import { db } from './db';
 
-app.get('/api/health', async (req, res) => {
+app.get('/api/health', async (_req, res) => {
     try {
         await db.$connect();
         const userCount = await db.user.count();
