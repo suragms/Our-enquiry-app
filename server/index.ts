@@ -58,6 +58,16 @@ app.use('*', (req, res) => {
     res.status(404).json({ error: 'Route not found', path: req.path, originalUrl: req.originalUrl });
 });
 
+// Global error handler
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error('Unhandled Error:', err);
+    res.status(500).json({
+        error: 'Internal Server Error',
+        message: err.message,
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
+});
+
 // Only start the server if we're not in a Netlify function environment
 if (!process.env.NETLIFY) {
     app.listen(PORT, () => {
