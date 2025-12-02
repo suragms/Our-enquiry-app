@@ -15,9 +15,20 @@ export const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
-app.options('*', cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+app.use((req, _res, next) => {
+    if (req.url.startsWith('/.netlify/functions/api')) {
+        const trimmed = req.url.replace('/.netlify/functions/api', '') || '/';
+        if (trimmed.startsWith('/api/') || trimmed === '/api') {
+            req.url = trimmed;
+        } else {
+            req.url = trimmed.startsWith('/') ? `/api${trimmed}` : `/api/${trimmed}`;
+        }
+    }
+    next();
+});
 
 import { db } from './db';
 
@@ -55,7 +66,7 @@ app.use('/api/users', usersRouter as any);
 app.use('/api/settings', settingsRouter as any);
 app.use('/api/upload', uploadRouter as any);
 
-app.use('*', (req, res) => {
+app.use((req, res) => {
     res.status(404).json({ error: 'Route not found', path: req.path, originalUrl: req.originalUrl });
 });
 

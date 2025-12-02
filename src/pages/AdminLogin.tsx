@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, ShieldCheck, Lock } from 'lucide-react';
+import { API_URL } from '@/lib/utils';
 
 export default function AdminLogin() {
     const navigate = useNavigate();
@@ -22,7 +23,7 @@ export default function AdminLogin() {
         setError('');
 
         try {
-            const response = await fetch(`/.netlify/functions/api/auth/login`, {
+            const response = await fetch(`${API_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
