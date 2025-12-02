@@ -20,6 +20,10 @@ app.use(express.json());
 
 import { db } from './db';
 
+app.get('/api/ping', (req, res) => {
+    res.json({ message: 'pong', timestamp: new Date().toISOString() });
+});
+
 app.get('/api/health', async (_req, res) => {
     try {
         await db.$connect();
