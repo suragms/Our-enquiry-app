@@ -18,8 +18,28 @@ app.use(cors());
 app.options('*', cors());
 app.use(express.json());
 
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', path: req.path, originalUrl: req.originalUrl, env: process.env.NODE_ENV });
+import { db } from './db';
+
+app.get('/api/health', async (req, res) => {
+    try {
+        await db.$connect();
+        const userCount = await db.user.count();
+        res.json({
+            status: 'ok',
+            db: 'connected',
+            userCount,
+            env: process.env.NODE_ENV,
+            mongoDbUrl: process.env.DATABASE_URL ? 'Set' : 'Missing'
+        });
+    } catch (error) {
+        console.error('Health check failed:', error);
+        res.status(500).json({
+            status: 'error',
+            db: 'disconnected',
+            error: (error as Error).message,
+            stack: (error as Error).stack
+        });
+    }
 });
 
 app.use('/api/projects', projectsRouter as any);
