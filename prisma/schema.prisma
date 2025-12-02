@@ -3,12 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(cuid())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   email     String   @unique
   name      String
   password  String
@@ -22,7 +22,7 @@ model User {
 }
 
 model Project {
-  id          String        @id @default(cuid())
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   overview    String
   techStack   String?
@@ -31,7 +31,7 @@ model Project {
   updatedAt   DateTime      @updatedAt
 
   createdBy   User @relation(fields: [createdById], references: [id])
-  createdById String
+  createdById String @db.ObjectId
 
   media       ProjectMedia[]
   feedbacks   Feedback[]
@@ -39,16 +39,16 @@ model Project {
 }
 
 model ProjectMedia {
-  id         String   @id @default(cuid())
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
   type       MediaType
   url        String
-  projectId  String
+  projectId  String @db.ObjectId
   project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())
 }
 
 model Feedback {
-  id         String       @id @default(cuid())
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
   name       String
   company    String?
   content    String
@@ -59,15 +59,15 @@ model Feedback {
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
 
-  projectId  String
+  projectId  String @db.ObjectId
   project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   
   submittedBy User? @relation(fields: [submittedById], references: [id])
-  submittedById String?
+  submittedById String? @db.ObjectId
 }
 
 model Task {
-  id          String     @id @default(cuid())
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   description String?
   status      TaskStatus @default(PENDING)
@@ -76,15 +76,15 @@ model Task {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime @updatedAt
 
-  projectId   String
+  projectId   String @db.ObjectId
   project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   
   assignedTo  User? @relation(fields: [assignedToId], references: [id])
-  assignedToId String?
+  assignedToId String? @db.ObjectId
 }
 
 model WebsiteContent {
-  id        String   @id @default(cuid())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   page      String
   section   String
   content   String
@@ -93,7 +93,7 @@ model WebsiteContent {
 }
 
 model CompanySettings {
-  id                  String   @id @default(cuid())
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
   companyName         String   @default("HexaStack Solutions")
   primaryEmail        String   @default("anandukrishnapa2000@gmail.com")
   primaryWhatsApp     String   @default("+917591999365")
@@ -111,7 +111,7 @@ model CompanySettings {
 }
 
 model Portfolio {
-  id              String   @id @default(cuid())
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
   title           String
   description     String
   techStack       String?
@@ -126,21 +126,21 @@ model Portfolio {
 }
 
 model PortfolioMedia {
-  id          String      @id @default(cuid())
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
   type        MediaType
   url         String
-  portfolioId String
+  portfolioId String @db.ObjectId
   portfolio   Portfolio   @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
   createdAt   DateTime    @default(now())
 }
 
 model PortfolioTeamMember {
-  id          String    @id @default(cuid())
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   role        String?
   linkedIn    String?
   profileUrl  String?
-  portfolioId String
+  portfolioId String @db.ObjectId
   portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
   createdAt   DateTime  @default(now())
 }
@@ -169,7 +169,7 @@ enum TaskStatus {
 }
 
 model ContactMessage {
-  id          String   @id @default(cuid())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   email       String
   phone       String?
