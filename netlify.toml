@@ -4,7 +4,7 @@
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["@prisma/client", ".prisma/client", "@prisma/engines", "prisma"]
+  external_node_modules = ["@prisma/client", ".prisma/client"]
   included_files = ["prisma/**", ".prisma/**"]
 
 # Environment variables (Set these in Netlify Dashboard)

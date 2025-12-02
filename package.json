@@ -71,7 +71,6 @@
     "multer": "^2.0.2",
     "nanoid": "^5.1.6",
     "nodemon": "^3.1.11",
-    "prisma": "^6.11.1",
     "react": "^19.0.0",
     "react-day-picker": "^9.8.0",
     "react-dom": "^19.0.0",
@@ -111,6 +110,7 @@
     "@types/react-dom": "^19",
     "concurrently": "^9.2.1",
     "eslint": "^9",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "prisma": "^6.11.1"
   }
 }
