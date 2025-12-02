@@ -17,6 +17,10 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', path: req.path, originalUrl: req.originalUrl, env: process.env.NODE_ENV });
+});
+
 app.use('/api/projects', projectsRouter as any);
 app.use('/api/feedback', feedbackRouter as any);
 app.use('/api/contact', contactRouter as any);
@@ -24,6 +28,10 @@ app.use('/api/auth', authRouter as any);
 app.use('/api/users', usersRouter as any);
 app.use('/api/settings', settingsRouter as any);
 app.use('/api/upload', uploadRouter as any);
+
+app.use('*', (req, res) => {
+    res.status(404).json({ error: 'Route not found', path: req.path, originalUrl: req.originalUrl });
+});
 
 // Only start the server if we're not in a Netlify function environment
 if (!process.env.NETLIFY) {
