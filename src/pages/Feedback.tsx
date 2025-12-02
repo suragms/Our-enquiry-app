@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { API_URL } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -27,7 +28,7 @@ export default function FeedbackPage() {
 
     const fetchFeedbackData = async () => {
         try {
-            const response = await fetch(`/api/feedback/${params.token}`);
+            const response = await fetch(`${API_URL}/api/feedback/${params.token}`);
             if (response.ok) {
                 const data = await response.json();
                 setFeedbackData(data);
@@ -46,7 +47,7 @@ export default function FeedbackPage() {
         setSubmitting(true);
 
         try {
-            const response = await fetch(`/api/feedback/${params.token}`, {
+            const response = await fetch(`${API_URL}/api/feedback/${params.token}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

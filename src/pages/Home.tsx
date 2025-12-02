@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { API_URL } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -53,7 +54,7 @@ export default function Home() {
 
     const fetchProjects = async () => {
         try {
-            const response = await fetch('/api/projects');
+            const response = await fetch(`${API_URL}/api/projects`);
             if (response.ok) {
                 const data = await response.json();
                 if (Array.isArray(data)) {
@@ -74,7 +75,7 @@ export default function Home() {
 
     const fetchFeedbacks = async () => {
         try {
-            const response = await fetch('/api/feedback');
+            const response = await fetch(`${API_URL}/api/feedback`);
             if (response.ok) {
                 const data = await response.json();
                 if (Array.isArray(data)) {
@@ -99,7 +100,7 @@ export default function Home() {
 
         try {
             // Save to database
-            const response = await fetch('/api/contact', {
+            const response = await fetch(`${API_URL}/api/contact`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -138,7 +139,7 @@ export default function Home() {
         setFeedbackLoading(true);
 
         try {
-            const response = await fetch('/api/feedback', {
+            const response = await fetch(`${API_URL}/api/feedback`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

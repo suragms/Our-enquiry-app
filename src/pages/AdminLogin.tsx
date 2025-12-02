@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { API_URL } from '@/lib/utils';
 import { Eye, EyeOff, ShieldCheck, Lock } from 'lucide-react';
 
 export default function AdminLogin() {
@@ -22,7 +23,7 @@ export default function AdminLogin() {
         setError('');
 
         try {
-            const response = await fetch('/api/auth/login', {
+            const response = await fetch(`${API_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

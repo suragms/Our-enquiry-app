@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { API_URL } from '@/lib/utils';
 import { ExternalLink, Linkedin, User } from 'lucide-react';
 
 interface TeamMember {
@@ -41,7 +42,7 @@ export default function PortfolioShowcasePage() {
     const fetchPortfolios = async () => {
         try {
             setLoading(true);
-            const url = filter === 'featured' ? '/api/portfolio?featured=true' : '/api/portfolio';
+            const url = filter === 'featured' ? `${API_URL}/api/portfolio?featured=true` : `${API_URL}/api/portfolio`;
             const res = await fetch(url);
             const data = await res.json();
             setPortfolios(data.portfolios || []);
