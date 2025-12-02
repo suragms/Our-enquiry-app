@@ -39,8 +39,8 @@ export default function AdminLogin() {
             } else {
                 console.error('Login error response:', data);
                 const errorMessage = data.details
-                    ? `Login failed: ${data.details}`
-                    : (data.error || 'Login failed');
+                    ? `Login failed (${response.status}): ${data.details}`
+                    : (data.error || `Login failed (${response.status})`);
                 setError(errorMessage);
             }
         } catch (error) {
