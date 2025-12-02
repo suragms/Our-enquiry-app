@@ -1,47 +1,49 @@
 import serverless from 'serverless-http';
 import { Handler } from '@netlify/functions';
 import { app } from '../../server/index';
-import { db } from '../../server/db';
 
 // Ensure Prisma client is initialized for serverless environment
 process.env.NETLIFY = 'true';
 
-// Create the serverless handler
+// Create the serverless handler with proper configuration
 const serverlessHandler = serverless(app, {
-    // Ensure binary data is handled correctly
     binary: ['image/*', 'application/pdf', 'video/*'],
 });
 
-// Wrap with error handling and connection management
+// Export the handler with error handling
 export const handler: Handler = async (event, context) => {
-    try {
-        console.log('Function invoked:', event.path, event.httpMethod);
+    // Prevent function timeout
+    context.callbackWaitsForEmptyEventLoop = false;
 
-        // Ensure database connection is ready
-        await db.$connect();
-        console.log('Database connected successfully');
+    try {
+        console.log('=== Netlify Function Invoked ===');
+        console.log('Path:', event.path);
+        console.log('Method:', event.httpMethod);
+        console.log('Headers:', JSON.stringify(event.headers));
 
         // Call the serverless handler
         const result = await serverlessHandler(event, context);
 
+        console.log('Function completed successfully');
         return result;
     } catch (error) {
-        console.error('Function error:', error);
+        console.error('=== Function Error ===');
+        console.error('Error type:', error?.constructor?.name);
+        console.error('Error message:', (error as Error).message);
         console.error('Error stack:', (error as Error).stack);
 
         return {
             statusCode: 500,
             headers: {
                 'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
             },
             body: JSON.stringify({
                 error: 'Internal Server Error',
                 message: (error as Error).message,
-                details: process.env.NODE_ENV === 'development' ? (error as Error).stack : undefined
+                type: error?.constructor?.name,
+                path: event.path,
             }),
         };
-    } finally {
-        // Don't disconnect in serverless - let connection pool handle it
-        // await db.$disconnect();
     }
 };
