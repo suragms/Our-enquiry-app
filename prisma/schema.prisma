@@ -1,0 +1,183 @@
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x", "rhel-openssl-1.0.x"]
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  name      String
+  password  String
+  role      UserRole @default(STAFF)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projects     Project[]
+  tasks        Task[]
+  feedbacks    Feedback[]
+}
+
+model Project {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  overview    String
+  techStack   String?
+  status      ProjectStatus @default(IN_PROGRESS)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  createdBy   User @relation(fields: [createdById], references: [id])
+  createdById String @db.ObjectId
+
+  media       ProjectMedia[]
+  feedbacks   Feedback[]
+  tasks       Task[]
+}
+
+model ProjectMedia {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  type       MediaType
+  url        String
+  projectId  String @db.ObjectId
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+}
+
+model Feedback {
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  company    String?
+  content    String
+  rating     Int
+  isPublic   Boolean      @default(false)
+  isApproved Boolean      @default(false)
+  linkToken  String?      @unique
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  projectId  String @db.ObjectId
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  submittedBy User? @relation(fields: [submittedById], references: [id])
+  submittedById String? @db.ObjectId
+}
+
+model Task {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  status      TaskStatus @default(PENDING)
+  deadline    DateTime?
+  notes       String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime @updatedAt
+
+  projectId   String @db.ObjectId
+  project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  assignedTo  User? @relation(fields: [assignedToId], references: [id])
+  assignedToId String? @db.ObjectId
+}
+
+model WebsiteContent {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  page      String
+  section   String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CompanySettings {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  companyName         String   @default("HexaStack Solutions")
+  primaryEmail        String   @default("anandukrishnapa2000@gmail.com")
+  primaryWhatsApp     String   @default("+917591999365")
+  secondaryWhatsApp   String?  @default("+917012714150")
+  leadName1           String   @default("Anandu Krishna")
+  leadEmail1          String   @default("anandukrishnapa2000@gmail.com")
+  leadWhatsApp1       String   @default("+917591999365")
+  leadName2           String   @default("Surag")
+  leadWhatsApp2       String   @default("+917012714150")
+  address             String?  @default("Kerala, India")
+  tagline             String?  @default("Building Digital Excellence")
+  description         String?  @default("We create innovative web applications, mobile solutions, and AI-powered tools that transform your business ideas into reality.")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model Portfolio {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  title           String
+  description     String
+  techStack       String?
+  projectUrl      String?
+  featured        Boolean  @default(false)
+  displayOrder    Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  media           PortfolioMedia[]
+  teamMembers     PortfolioTeamMember[]
+}
+
+model PortfolioMedia {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  type        MediaType
+  url         String
+  portfolioId String @db.ObjectId
+  portfolio   Portfolio   @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
+}
+
+model PortfolioTeamMember {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  role        String?
+  linkedIn    String?
+  profileUrl  String?
+  portfolioId String @db.ObjectId
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  STAFF
+}
+
+enum ProjectStatus {
+  IN_PROGRESS
+  DELIVERED
+  COMPLETED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+model ContactMessage {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String
+  phone       String?
+  requirement String
+  isRead      Boolean  @default(false)
+  isStarred   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
