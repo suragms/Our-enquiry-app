@@ -88,8 +88,8 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
     });
 });
 
-// Only start the server if we're not in a Netlify function environment
-if (!process.env.NETLIFY) {
+// Only start the server if we're not in a serverless environment
+if (!process.env.NETLIFY && !process.env.VERCEL) {
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
     });
