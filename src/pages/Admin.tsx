@@ -63,6 +63,8 @@ export default function Admin() {
     // Enquiries state
     const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
     const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null);
+    const [replyText, setReplyText] = useState('');
+    const [sendingReply, setSendingReply] = useState(false);
     
     // Projects state
     const [projects, setProjects] = useState<PortfolioProject[]>([]);
@@ -228,6 +230,35 @@ export default function Admin() {
             showNotification('error', 'Failed to delete');
         } finally {
             setDeleting(null);
+        }
+    };
+
+    const sendReply = async () => {
+        if (!selectedEnquiry || !replyText.trim()) return;
+        if (replyText.trim().length < 10) {
+            showNotification('error', 'Reply too short (min 10 characters)');
+            return;
+        }
+        try {
+            setSendingReply(true);
+            const response = await fetch(`${API_URL}/api/contact/${selectedEnquiry.id}/reply`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ replyMessage: replyText }),
+            });
+            const data = await response.json();
+            if (response.ok) {
+                showNotification('success', data.message || 'Reply sent!');
+                setReplyText('');
+                setEnquiries(enquiries.map(e => e.id === selectedEnquiry.id ? { ...e, isRead: true } : e));
+                setSelectedEnquiry({ ...selectedEnquiry, isRead: true });
+            } else {
+                showNotification('error', data.message || 'Failed to send reply');
+            }
+        } catch (error) {
+            showNotification('error', 'Failed to send reply');
+        } finally {
+            setSendingReply(false);
         }
     };
 
@@ -605,7 +636,28 @@ export default function Admin() {
 
                                             <div className="mb-8">
                                                 <h3 className="text-sm font-medium text-slate-500 mb-3">Project Requirements</h3>
-                                                <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">{selectedEnquiry.requirement}</p>
+                                                <p className="text-slate-700 whitespace-pre-wrap leading-relaxed bg-slate-50 p-4 rounded-lg border border-slate-100">{selectedEnquiry.requirement}</p>
+                                            </div>
+
+                                            {/* Reply Form */}
+                                            <div className="mb-6">
+                                                <h3 className="text-sm font-medium text-slate-500 mb-3">Send Reply</h3>
+                                                <textarea
+                                                    value={replyText}
+                                                    onChange={(e) => setReplyText(e.target.value)}
+                                                    placeholder="Type your reply here... (min 10 characters)"
+                                                    className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 text-slate-900 resize-none"
+                                                    rows={4}
+                                                />
+                                                <button
+                                                    onClick={sendReply}
+                                                    disabled={sendingReply || replyText.trim().length < 10}
+                                                    className="mt-3 w-full bg-emerald-600 text-white py-3 px-4 rounded-lg hover:bg-emerald-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                                >
+                                                    <Mail className="w-4 h-4" />
+                                                    {sendingReply ? 'Sending...' : 'Send Reply via Email'}
+                                                </button>
+                                                <p className="text-xs text-slate-400 mt-2 text-center">Reply will be sent to {selectedEnquiry.email}</p>
                                             </div>
 
                                             <div className="pt-6 border-t border-slate-100 flex gap-3">

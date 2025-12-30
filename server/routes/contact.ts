@@ -180,4 +180,102 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// Reply to enquiry - send email to user
+router.post('/:id/reply', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { replyMessage } = req.body;
+
+        if (!replyMessage || replyMessage.trim().length < 10) {
+            return res.status(400).json({ 
+                error: 'Reply too short',
+                message: 'Please write a proper reply message.' 
+            });
+        }
+
+        // Get the original enquiry
+        const enquiry = await db.contactMessage.findUnique({
+            where: { id },
+        });
+
+        if (!enquiry) {
+            return res.status(404).json({ error: 'Enquiry not found' });
+        }
+
+        // Log the reply
+        console.log(`\n========================================`);
+        console.log(`REPLY SENT TO: ${enquiry.name} <${enquiry.email}>`);
+        console.log(`========================================`);
+        console.log(`Reply: ${replyMessage}`);
+        console.log(`========================================\n`);
+
+        // Send email via Resend if configured
+        if (process.env.RESEND_API_KEY) {
+            const response = await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+                },
+                body: JSON.stringify({
+                    from: 'HexaStack <onboarding@resend.dev>',
+                    to: enquiry.email,
+                    subject: `Re: Your enquiry to HexaStack`,
+                    html: `
+                        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+                            <h2 style="color: #1e293b;">Hello ${enquiry.name},</h2>
+                            <p style="color: #475569; line-height: 1.6;">Thank you for reaching out to us. Here is our response to your enquiry:</p>
+                            <div style="background: #f8fafc; border-left: 4px solid #0f172a; padding: 16px; margin: 20px 0;">
+                                <p style="color: #1e293b; margin: 0; white-space: pre-wrap;">${replyMessage}</p>
+                            </div>
+                            <p style="color: #64748b; font-size: 14px; margin-top: 30px;">Your original message:</p>
+                            <div style="background: #f1f5f9; padding: 16px; border-radius: 8px; margin-top: 8px;">
+                                <p style="color: #64748b; margin: 0; font-size: 14px;">${enquiry.requirement}</p>
+                            </div>
+                            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 30px 0;">
+                            <p style="color: #64748b; font-size: 12px;">Best regards,<br>HexaStack AI Solutions<br>+91 94957 12853 | hexastack78@gmail.com</p>
+                        </div>
+                    `,
+                }),
+            });
+            
+            if (response.ok) {
+                console.log('[EMAIL] Reply sent successfully to', enquiry.email);
+                
+                // Mark as read after reply
+                await db.contactMessage.update({
+                    where: { id },
+                    data: { isRead: true },
+                });
+                
+                return res.json({ 
+                    success: true, 
+                    message: `Reply sent to ${enquiry.email}` 
+                });
+            } else {
+                const errorData = await response.text();
+                console.error('[EMAIL_ERROR]', errorData);
+                return res.status(500).json({ 
+                    error: 'Email failed',
+                    message: 'Could not send email. Check RESEND_API_KEY configuration.' 
+                });
+            }
+        } else {
+            // No email configured - just mark as read
+            await db.contactMessage.update({
+                where: { id },
+                data: { isRead: true },
+            });
+            
+            return res.json({ 
+                success: true, 
+                message: 'Reply logged (email not configured - add RESEND_API_KEY to enable)' 
+            });
+        }
+    } catch (error) {
+        console.error('[CONTACT_REPLY]', error);
+        res.status(500).json({ error: 'Internal Error' });
+    }
+});
+
 export default router;

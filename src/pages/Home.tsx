@@ -191,8 +191,11 @@ export default function Home() {
                         <div>
                             <h4 className="text-sm font-bold text-slate-900 mb-3">Contact</h4>
                             <div className="space-y-2 text-sm">
-                                <a href="tel:+919495712853" className="flex items-center gap-2 text-slate-500 hover:text-slate-900">
+                                <a href="https://wa.me/919495712853" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-500 hover:text-emerald-600">
                                     <Phone className="w-4 h-4" /> +91 94957 12853
+                                </a>
+                                <a href="https://wa.me/917591999365" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-500 hover:text-emerald-600">
+                                    <Phone className="w-4 h-4" /> +91 75919 99365
                                 </a>
                                 <a href="mailto:hexastack78@gmail.com" className="flex items-center gap-2 text-slate-500 hover:text-slate-900">
                                     <Mail className="w-4 h-4" /> hexastack78@gmail.com

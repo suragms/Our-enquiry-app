@@ -227,23 +227,17 @@ export default function Contact() {
 
                                 <div className="space-y-6">
                                     <div className="bg-slate-50 rounded-xl p-5 border border-slate-100">
-                                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Phone</h3>
+                                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Phone / WhatsApp</h3>
                                         <div className="space-y-2">
-                                            <a href="tel:+919495712853" className="flex items-center gap-3 text-slate-700 hover:text-slate-900 font-medium transition-colors">
+                                            <a href="https://wa.me/919495712853" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
                                                 <Phone className="w-4 h-4" /> +91 94957 12853
                                             </a>
-                                            <a href="tel:+917591999365" className="flex items-center gap-3 text-slate-700 hover:text-slate-900 font-medium transition-colors">
+                                            <a href="https://wa.me/917591999365" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
                                                 <Phone className="w-4 h-4" /> +91 75919 99365
                                             </a>
                                         </div>
                                     </div>
 
-                                    <div className="bg-emerald-50 rounded-xl p-5 border border-emerald-100">
-                                        <h3 className="text-sm font-bold text-emerald-600 uppercase tracking-wider mb-3">WhatsApp</h3>
-                                        <a href="https://wa.me/919495712853" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-emerald-700 hover:text-emerald-800 font-medium transition-colors">
-                                            <MessageCircle className="w-4 h-4" /> Chat on WhatsApp
-                                        </a>
-                                    </div>
 
                                     <div className="bg-slate-50 rounded-xl p-5 border border-slate-100">
                                         <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Email</h3>
