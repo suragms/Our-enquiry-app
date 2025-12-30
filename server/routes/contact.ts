@@ -14,6 +14,60 @@ const sanitize = (str: string): string => {
     return str.trim().slice(0, 1000); // Limit length
 };
 
+// Send email notification to admin (using Web3Forms - free service)
+const sendEmailNotification = async (name: string, email: string, phone: string | null, requirement: string) => {
+    try {
+        // Web3Forms is a free email API - no signup needed for basic usage
+        // Alternative: User can replace with their own SMTP or email service
+        const adminEmail = process.env.ADMIN_EMAIL || 'hexastack78@gmail.com';
+        
+        // Log the notification (email can be configured later)
+        console.log(`\n========================================`);
+        console.log(`NEW ENQUIRY NOTIFICATION`);
+        console.log(`========================================`);
+        console.log(`Name: ${name}`);
+        console.log(`Email: ${email}`);
+        console.log(`Phone: ${phone || 'Not provided'}`);
+        console.log(`Requirement: ${requirement}`);
+        console.log(`========================================`);
+        console.log(`To enable email notifications, add SMTP settings to .env`);
+        console.log(`========================================\n`);
+
+        // If RESEND_API_KEY is configured, send email via Resend
+        if (process.env.RESEND_API_KEY) {
+            const response = await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+                },
+                body: JSON.stringify({
+                    from: 'HexaStack <onboarding@resend.dev>',
+                    to: adminEmail,
+                    subject: `New Website Enquiry from ${name}`,
+                    html: `
+                        <h2>New Enquiry Received</h2>
+                        <p><strong>Name:</strong> ${name}</p>
+                        <p><strong>Email:</strong> ${email}</p>
+                        <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+                        <p><strong>Requirement:</strong></p>
+                        <p>${requirement}</p>
+                        <hr>
+                        <p><small>Sent from HexaStack AI Solutions website</small></p>
+                    `,
+                }),
+            });
+            
+            if (response.ok) {
+                console.log('[EMAIL] Notification sent to admin');
+            }
+        }
+    } catch (error) {
+        console.error('[EMAIL_ERROR]', error);
+        // Don't throw - email failure shouldn't block enquiry submission
+    }
+};
+
 // Create new enquiry
 router.post('/', async (req, res) => {
     try {
@@ -54,6 +108,9 @@ router.post('/', async (req, res) => {
         });
 
         console.log(`[NEW_ENQUIRY] ${name} <${email}>`);
+
+        // Send email notification to admin (async, don't block response)
+        sendEmailNotification(name, email, phone, requirement);
 
         res.json({ 
             success: true,

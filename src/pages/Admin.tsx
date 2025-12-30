@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { API_URL } from '@/lib/utils';
 import { 
     Trash2, Mail, Phone, Clock, ArrowLeft, RefreshCw, Lock, LogOut, Shield,
     FolderOpen, Settings, Bell, Plus, Edit2, Save, X, Image, ExternalLink,
-    MessageCircle, AlertCircle, CheckCircle
+    MessageCircle, AlertCircle, CheckCircle, Upload, ImagePlus
 } from 'lucide-react';
 
 // Admin password
@@ -74,7 +74,10 @@ export default function Admin() {
         techStack: '',
         projectUrl: '',
         featured: false,
+        imageUrl: '', // New field for image
     });
+    const [uploading, setUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     
     // Settings state
     const [settings, setSettings] = useState<CompanySettings | null>(null);
@@ -263,7 +266,7 @@ export default function Admin() {
                 await fetchProjects();
                 setShowProjectForm(false);
                 setEditingProject(null);
-                setProjectForm({ title: '', description: '', techStack: '', projectUrl: '', featured: false });
+                setProjectForm({ title: '', description: '', techStack: '', projectUrl: '', featured: false, imageUrl: '' });
                 showNotification('success', editingProject ? 'Project updated' : 'Project created');
             }
         } catch (error) {
@@ -297,8 +300,43 @@ export default function Admin() {
             techStack: project.techStack || '',
             projectUrl: project.projectUrl || '',
             featured: project.featured,
+            imageUrl: project.media?.[0]?.url || '',
         });
         setShowProjectForm(true);
+    };
+
+    // Image upload handler
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            showNotification('error', 'Image too large (max 5MB)');
+            return;
+        }
+
+        setUploading(true);
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await fetch(`${API_URL}/api/upload`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setProjectForm({ ...projectForm, imageUrl: data.url });
+                showNotification('success', 'Image uploaded');
+            } else {
+                showNotification('error', 'Upload failed');
+            }
+        } catch (error) {
+            showNotification('error', 'Upload failed');
+        } finally {
+            setUploading(false);
+        }
     };
 
     // Settings handlers
@@ -600,7 +638,7 @@ export default function Admin() {
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-lg font-semibold text-slate-900">Portfolio Projects</h2>
                             <button
-                                onClick={() => { setShowProjectForm(true); setEditingProject(null); setProjectForm({ title: '', description: '', techStack: '', projectUrl: '', featured: false }); }}
+                                onClick={() => { setShowProjectForm(true); setEditingProject(null); setProjectForm({ title: '', description: '', techStack: '', projectUrl: '', featured: false, imageUrl: '' }); }}
                                 className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800 text-sm font-medium"
                             >
                                 <Plus className="w-4 h-4" />
@@ -671,6 +709,49 @@ export default function Admin() {
                                                 className="w-4 h-4"
                                             />
                                             <label htmlFor="featured" className="text-sm text-slate-700">Featured project</label>
+                                        </div>
+                                        
+                                        {/* Image Upload */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-1">Project Image</label>
+                                            <div className="flex items-center gap-4">
+                                                {projectForm.imageUrl ? (
+                                                    <div className="relative w-24 h-24 rounded-lg overflow-hidden border border-slate-200">
+                                                        <img src={projectForm.imageUrl} alt="Project" className="w-full h-full object-cover" />
+                                                        <button
+                                                            onClick={() => setProjectForm({ ...projectForm, imageUrl: '' })}
+                                                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                                                        >
+                                                            <X className="w-3 h-3" />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div
+                                                        onClick={() => fileInputRef.current?.click()}
+                                                        className="w-24 h-24 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-slate-400 transition-colors"
+                                                    >
+                                                        {uploading ? (
+                                                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-600" />
+                                                        ) : (
+                                                            <>
+                                                                <ImagePlus className="w-6 h-6 text-slate-400" />
+                                                                <span className="text-xs text-slate-400 mt-1">Upload</span>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                )}
+                                                <input
+                                                    ref={fileInputRef}
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleImageUpload}
+                                                    className="hidden"
+                                                />
+                                                <div className="text-xs text-slate-500">
+                                                    <p>Max 5MB</p>
+                                                    <p>JPG, PNG, WebP</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
