@@ -1,7 +1,7 @@
-# 🚀 OUR PROJECTS WORKS ENQUIRY
+# 🚀 HexaStack AI Solutions | Web & AI Systems for Real Businesses
 
 ## 🌟 PROJECT TITLE
-**Our Enquiry App** - *A Comprehensive Project Management and Collaboration Platform*
+**HexaStack AI Solutions** - *Web & AI Systems for Real Businesses*
 
 ---
 
@@ -11,9 +11,11 @@
 ---
 
 ## 🛠️ STACK
-![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
 
@@ -109,11 +111,12 @@ Get the project up and running on your local machine:
 
 4.  **Set up environment variables**
     *   Copy `.env.example` to `.env` and update with your MongoDB connection string.
-    *   Or use the existing `.env` file (already configured for the team)
+    *   Or use the existing `.env` file (already configured for the team).
 
-5.  **Generate Prisma Client**
+5.  **Initialize Database**
     ```bash
     npx prisma generate
+    npm run db:push
     ```
 
 6.  **Seed the database with admin user**
@@ -127,14 +130,15 @@ Get the project up and running on your local machine:
     ```
 
 8.  **Start the development server**
+    This command starts both the Express backend and Vite frontend concurrently.
     ```bash
     npm run dev
     ```
 
 9.  **Open your browser**
-    *   Visit [http://localhost:3000](http://localhost:3000)
-    *   Admin login: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
-    *   Default credentials: `admin@example.com` / `admin123`
+    *   Visit [http://localhost:5173](http://localhost:5173) (or the port shown in your terminal)
+    *   Backend API runs on [http://localhost:3000](http://localhost:3000) (or configured port)
+    *   Default Admin Credentials: `admin@example.com` / `admin123`
 
 ---
 
@@ -142,23 +146,32 @@ Get the project up and running on your local machine:
 A quick look at the project's architecture:
 
 ```
-src/
-├── 📂 app/                    # Next.js App Router pages and layouts
-│   ├── 📂 admin/             # Admin dashboard pages
-│   ├── 📂 api/               # API routes for backend functionality
-│   ├── 📂 feedback/          # Feedback collection pages
-│   └── ...
-├── 📂 components/            # Reusable UI components
-│   └── 📂 ui/               # shadcn/ui component library
-├── 📂 hooks/                # Custom React hooks
-├── 📂 lib/                  # Utility functions and configurations
-│   ├── auth.ts           # Authentication utilities
-│   ├── db.ts             # Database connection and queries
-│   └── utils.ts          # General utility functions
-└── ...
-
-📂 public/                   # Static assets
-📂 prisma/                   # Prisma schema and migrations
+Our-enquiry-app/
+├── 📂 server/                  # Backend (Node.js/Express)
+│   ├── 📂 routes/              # API endpoints
+│   ├── 📂 utils/               # Backend helper functions
+│   ├── db.ts                   # Database connection setup
+│   ├── index.ts                # Server entry point
+│   ├── seed.ts                 # Database seeding script
+│   └── verify-setup.ts         # Setup verification script
+├── 📂 src/                     # Frontend (React + Vite)
+│   ├── 📂 components/          # Reusable UI components
+│   │   └── 📂 ui/              # shadcn/ui component library
+│   ├── 📂 contexts/            # Global state (Auth, Theme)
+│   ├── 📂 hooks/               # Custom React hooks
+│   ├── 📂 lib/                 # Frontend utilities
+│   ├── 📂 pages/               # Application Routes/Pages
+│   │   ├── Admin.tsx           # Admin Dashboard
+│   │   ├── Contact.tsx         # Contact/Enquiry Page
+│   │   ├── Home.tsx            # Landing Page
+│   │   └── Work.tsx            # Project Showcase Page
+│   ├── App.tsx                 # Main Component with Routing
+│   ├── globals.css             # Global Styles & Tailwind
+│   └── main.tsx                # React Entry Point
+├── 📂 prisma/                  # Database Schema & Migrations
+├── 📂 public/                  # Static Assets (Images, Icons)
+├── 📂 netlify/                 # Netlify Serverless Functions
+└── 📄 vite.config.ts           # Vite Configuration
 ```
 
 ---
@@ -166,44 +179,40 @@ src/
 ## 🧠 STACK EXPLANATION
 
 ### **Frontend Technologies**
-*   **Next.js 15**: The React framework for production, utilizing the App Router for optimal performance and SEO.
+*   **React 19**: The latest version of the popular library for building user interfaces.
+*   **Vite**: Next-generation frontend tooling for lightning-fast development servers and builds.
 *   **TypeScript**: Ensures type safety and enhances the developer experience with robust tooling.
-*   **Tailwind CSS**: A utility-first CSS framework for rapid and responsive UI development.
+*   **Tailwind CSS (v4)**: A utility-first CSS framework for rapid and responsive UI development.
 *   **shadcn/ui**: Beautifully designed, accessible, and customizable components.
 
 ### **Backend Technologies**
-*   **Node.js/Express**: Serverless backend API with Express framework.
-*   **Prisma**: A modern ORM for type-safe database access and management.
-*   **MongoDB**: Cloud-hosted NoSQL database via MongoDB Atlas for scalable data storage.
-*   **JWT Authentication**: Custom JWT-based authentication with bcrypt password hashing.
+*   **Node.js/Express**: Robust backend API handling business logic and request processing.
+*   **Prisma**: A modern ORM for type-safe database access and schema management.
+*   **MongoDB**: Flexible, robust NoSQL database for scalable data storage.
+*   **JWT Authentication**: Secure stateless authentication mechanism.
 
 ### **Development Tools**
 *   **ESLint**: Enforces code quality and consistency.
 *   **Prettier**: Automates code formatting for a clean codebase.
-*   **Jest**: A delightful JavaScript testing framework.
+*   **Concurrently**: Runs client and server processes simultaneously for a seamless dev experience.
 
 ---
 
-## 🚀 DEPLOYMENT TO NETLIFY
+## 🚀 DEPLOYMENT
 
 For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md)
 
 ### Quick Deployment Checklist:
-
-1. ✅ Ensure MongoDB Atlas cluster is running
-2. ✅ Run `npm run verify` to check local setup
-3. ✅ Set environment variables in Netlify Dashboard:
-   - `DATABASE_URL` (MongoDB connection string)
-   - `JWT_SECRET` (secret key for JWT tokens)
-   - `NODE_ENV` (set to "production")
-4. ✅ Push code to GitHub repository
-5. ✅ Connect repository to Netlify
-6. ✅ Deploy and test admin login
-
-**Admin Credentials:**
-- Email: `admin@example.com`
-- Password: `admin123`
-- ⚠️ Change password after first login!
+1. ✅ Ensure MongoDB Atlas cluster is running.
+2. ✅ Run `npm run verify` to check local setup.
+3. ✅ Set environment variables in your hosting provider (Netlify/Vercel/Render):
+   - `DATABASE_URL`
+   - `JWT_SECRET`
+   - `NODE_ENV=production`
+4. ✅ Build for production:
+   ```bash
+   npm run build
+   ```
 
 **Helpful Commands:**
 ```bash
@@ -212,9 +221,6 @@ npm run verify
 
 # Seed admin user
 npm run db:seed
-
-# Build for production
-npm run build
 ```
 
 For troubleshooting, see [FIXES_SUMMARY.md](./FIXES_SUMMARY.md)
@@ -222,7 +228,7 @@ For troubleshooting, see [FIXES_SUMMARY.md](./FIXES_SUMMARY.md)
 ---
 
 ## 🏁 CONCLUSION
-**Our Enquiry App** demonstrates the power of modern web technologies combined with thoughtful design to create a robust solution for project management and collaboration. The application showcases best practices in full-stack development while providing a solid foundation for future enhancements.
+**Our Enquiry App** demonstrates the power of modern web technologies combined with thoughtful design to create a robust solution for project management and collaboration. The application showcases best practices in full-stack development using React, Vite, and Node.js.
 
 ---
 
@@ -234,7 +240,7 @@ We extend our deepest gratitude to everyone who contributed to making this proje
 
 ### 👥 TEAM MEMBERS
 *   **👨‍💻 ANANDU** - *Lead Developer & Architect*
-*   **👨‍💻 SURAG (ME)** - *Full Stack Developer & Project Manager*
+*   **👨‍💻 SURAG** - *Full Stack Developer & Project Manager*
 
 ### 🤝 COLLABORATIVE WORK
 This project represents months of dedicated collaborative effort, combining diverse skills and perspectives to create a comprehensive solution that addresses real-world project management challenges.
