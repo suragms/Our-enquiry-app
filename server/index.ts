@@ -40,7 +40,7 @@ app.use((req, _res, next) => {
 
 import { db } from './db';
 
-app.get('/api/ping', (req, res) => {
+app.get('/api/ping', (_req, res) => {
     res.json({ message: 'pong', timestamp: new Date().toISOString() });
 });
 
@@ -79,7 +79,7 @@ app.use((req, res) => {
 });
 
 // Global error handler
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     console.error('Unhandled Error:', err);
     res.status(500).json({
         error: 'Internal Server Error',
