@@ -25,19 +25,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Handle serverless connection management
-if (process.env.NETLIFY) {
-    console.log('Running in Netlify serverless environment');
+if (process.env.NETLIFY || process.env.VERCEL) {
+    console.log('Running in serverless environment');
     console.log('DATABASE_URL configured:', process.env.DATABASE_URL ? 'Yes' : 'No');
-
-    // Test connection on initialization
-    db.$connect()
-        .then(() => console.log('Prisma client connected successfully'))
-        .catch((err) => {
-            console.error('Failed to connect to database on initialization:', err);
-            console.error('Error details:', {
-                name: err.name,
-                message: err.message,
-                code: err.code,
-            });
-        });
 }
