@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { API_URL } from '@/lib/utils';
-import { Trash2, Mail, Phone, Clock, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Trash2, Mail, Phone, Clock, ArrowLeft, RefreshCw, Lock, LogOut, Shield } from 'lucide-react';
+
+// Admin password - change this to your secure password
+const ADMIN_PASSWORD = 'hexastack@2024';
 
 interface Enquiry {
     id: string;
@@ -14,10 +17,84 @@ interface Enquiry {
 }
 
 export default function Admin() {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [password, setPassword] = useState('');
+    const [loginError, setLoginError] = useState('');
+    const [loginAttempts, setLoginAttempts] = useState(0);
+    const [isLocked, setIsLocked] = useState(false);
+    
     const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null);
     const [deleting, setDeleting] = useState<string | null>(null);
+
+    // Check if already logged in (session)
+    useEffect(() => {
+        const session = sessionStorage.getItem('hexastack_admin_auth');
+        const sessionTime = sessionStorage.getItem('hexastack_admin_time');
+        
+        // Session expires after 2 hours
+        if (session === 'authenticated' && sessionTime) {
+            const elapsed = Date.now() - parseInt(sessionTime);
+            if (elapsed < 2 * 60 * 60 * 1000) { // 2 hours
+                setIsAuthenticated(true);
+            } else {
+                sessionStorage.removeItem('hexastack_admin_auth');
+                sessionStorage.removeItem('hexastack_admin_time');
+            }
+        }
+        
+        // Check if locked out
+        const lockTime = localStorage.getItem('hexastack_lock_time');
+        if (lockTime) {
+            const elapsed = Date.now() - parseInt(lockTime);
+            if (elapsed < 15 * 60 * 1000) { // 15 minutes lockout
+                setIsLocked(true);
+            } else {
+                localStorage.removeItem('hexastack_lock_time');
+                localStorage.removeItem('hexastack_attempts');
+            }
+        }
+        
+        const attempts = localStorage.getItem('hexastack_attempts');
+        if (attempts) setLoginAttempts(parseInt(attempts));
+    }, []);
+
+    const handleLogin = (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        if (isLocked) return;
+        
+        if (password === ADMIN_PASSWORD) {
+            setIsAuthenticated(true);
+            sessionStorage.setItem('hexastack_admin_auth', 'authenticated');
+            sessionStorage.setItem('hexastack_admin_time', Date.now().toString());
+            localStorage.removeItem('hexastack_attempts');
+            localStorage.removeItem('hexastack_lock_time');
+            setLoginError('');
+            setLoginAttempts(0);
+        } else {
+            const newAttempts = loginAttempts + 1;
+            setLoginAttempts(newAttempts);
+            localStorage.setItem('hexastack_attempts', newAttempts.toString());
+            
+            if (newAttempts >= 5) {
+                setIsLocked(true);
+                localStorage.setItem('hexastack_lock_time', Date.now().toString());
+                setLoginError('Too many failed attempts. Locked for 15 minutes.');
+            } else {
+                setLoginError(`Invalid password. ${5 - newAttempts} attempts remaining.`);
+            }
+        }
+        setPassword('');
+    };
+
+    const handleLogout = () => {
+        setIsAuthenticated(false);
+        sessionStorage.removeItem('hexastack_admin_auth');
+        sessionStorage.removeItem('hexastack_admin_time');
+        setSelectedEnquiry(null);
+    };
 
     useEffect(() => {
         fetchEnquiries();
@@ -88,6 +165,70 @@ export default function Admin() {
 
     const unreadCount = enquiries.filter(e => !e.isRead).length;
 
+    // Login Screen
+    if (!isAuthenticated) {
+        return (
+            <div className="min-h-screen bg-slate-50 font-sans flex items-center justify-center px-6">
+                <div className="w-full max-w-sm">
+                    <div className="bg-white rounded-lg border border-slate-200 p-8 shadow-sm">
+                        <div className="text-center mb-8">
+                            <div className="w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Shield className="w-8 h-8 text-white" />
+                            </div>
+                            <h1 className="text-xl font-semibold text-slate-900">Admin Access</h1>
+                            <p className="text-sm text-slate-500 mt-1">Enter password to continue</p>
+                        </div>
+
+                        <form onSubmit={handleLogin} className="space-y-4">
+                            <div>
+                                <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-2">
+                                    Password
+                                </label>
+                                <div className="relative">
+                                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <input
+                                        type="password"
+                                        id="password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        disabled={isLocked}
+                                        className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent text-slate-900 disabled:bg-slate-100 disabled:cursor-not-allowed"
+                                        placeholder="Enter admin password"
+                                        autoFocus
+                                    />
+                                </div>
+                            </div>
+
+                            {loginError && (
+                                <div className="bg-red-50 border border-red-200 text-red-700 text-sm p-3 rounded-md">
+                                    {loginError}
+                                </div>
+                            )}
+
+                            <button
+                                type="submit"
+                                disabled={isLocked || !password}
+                                className="w-full bg-slate-900 text-white py-3 px-4 rounded-md hover:bg-slate-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isLocked ? 'Locked' : 'Access Admin'}
+                            </button>
+                        </form>
+
+                        <div className="mt-6 text-center">
+                            <Link to="/" className="text-sm text-slate-500 hover:text-slate-700">
+                                ← Back to website
+                            </Link>
+                        </div>
+                    </div>
+
+                    <p className="text-center text-xs text-slate-400 mt-6">
+                        Protected area. Unauthorized access prohibited.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-slate-50 font-sans">
             {/* Header */}
@@ -110,13 +251,22 @@ export default function Admin() {
                                 </p>
                             </div>
                         </div>
-                        <button
-                            onClick={fetchEnquiries}
-                            className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors"
-                        >
-                            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                            Refresh
-                        </button>
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={fetchEnquiries}
+                                className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors"
+                            >
+                                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                                Refresh
+                            </button>
+                            <button
+                                onClick={handleLogout}
+                                className="flex items-center gap-2 text-sm text-red-600 hover:text-red-700 transition-colors"
+                            >
+                                <LogOut className="w-4 h-4" />
+                                Logout
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
