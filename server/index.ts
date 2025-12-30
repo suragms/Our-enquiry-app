@@ -8,6 +8,7 @@ import authRouter from './routes/auth';
 import usersRouter from './routes/users';
 import settingsRouter from './routes/settings';
 import uploadRouter from './routes/upload';
+import portfolioRouter from './routes/portfolio';
 
 dotenv.config();
 
@@ -73,6 +74,7 @@ app.use('/api/auth', authRouter as any);
 app.use('/api/users', usersRouter as any);
 app.use('/api/settings', settingsRouter as any);
 app.use('/api/upload', uploadRouter as any);
+app.use('/api/portfolio', portfolioRouter as any);
 
 app.use((req, res) => {
     res.status(404).json({ error: 'Route not found', path: req.path, originalUrl: req.originalUrl });
