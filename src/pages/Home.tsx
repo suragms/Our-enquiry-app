@@ -143,14 +143,16 @@ export default function Home() {
                     <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-12">
                         What We Do
                     </h2>
-                    <ul className="grid md:grid-cols-2 gap-4">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {services.map((service, index) => (
-                            <li key={index} className="flex items-start gap-3 text-slate-700">
-                                <span className="w-1.5 h-1.5 bg-slate-400 rounded-full mt-2.5 flex-shrink-0" />
-                                <span className="text-base">{service}</span>
-                            </li>
+                            <div key={index} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-all">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-2 h-2 bg-emerald-500 rounded-full flex-shrink-0" />
+                                    <span className="text-base font-medium text-slate-800">{service}</span>
+                                </div>
+                            </div>
                         ))}
-                    </ul>
+                    </div>
                 </div>
             </section>
 
@@ -160,16 +162,16 @@ export default function Home() {
                     <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-12">
                         How We Work
                     </h2>
-                    <div className="grid md:grid-cols-4 gap-8">
+                    <div className="grid md:grid-cols-4 gap-6">
                         {processSteps.map((item, index) => (
-                            <div key={index} className="relative">
-                                <span className="text-4xl font-light text-slate-200 mb-4 block">
+                            <div key={index} className="relative bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                                <span className="text-5xl font-bold text-slate-900/10 mb-3 block">
                                     {item.step}
                                 </span>
-                                <h3 className="text-lg font-medium text-slate-900 mb-2">
+                                <h3 className="text-lg font-semibold text-slate-900 mb-2">
                                     {item.title}
                                 </h3>
-                                <p className="text-sm text-slate-500 leading-relaxed">
+                                <p className="text-sm text-slate-600 leading-relaxed">
                                     {item.description}
                                 </p>
                             </div>
@@ -195,22 +197,22 @@ export default function Home() {
                     </div>
                     <div className="grid md:grid-cols-3 gap-6">
                         {recentWork.map((project, index) => (
-                            <div key={index} className="bg-white p-6 rounded-lg border border-slate-100">
-                                <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+                            <div key={index} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all">
+                                <span className="inline-block text-xs font-semibold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-wider">
                                     {project.type}
                                 </span>
-                                <h3 className="text-lg font-medium text-slate-900 mt-2 mb-3">
+                                <h3 className="text-lg font-semibold text-slate-900 mt-4 mb-3">
                                     {project.title}
                                 </h3>
-                                <p className="text-sm text-slate-500 mb-4 leading-relaxed">
+                                <p className="text-sm text-slate-600 mb-5 leading-relaxed">
                                     {project.description}
                                 </p>
-                                <div className="pt-4 border-t border-slate-100">
-                                    <p className="text-xs text-slate-400">
-                                        <span className="font-medium">Industry:</span> {project.industry}
+                                <div className="pt-4 border-t border-slate-100 space-y-2">
+                                    <p className="text-xs text-slate-500">
+                                        <span className="font-semibold text-slate-700">Industry:</span> {project.industry}
                                     </p>
-                                    <p className="text-xs text-slate-400 mt-1">
-                                        <span className="font-medium">Tech:</span> {project.tech}
+                                    <p className="text-xs text-slate-500">
+                                        <span className="font-semibold text-slate-700">Tech:</span> {project.tech}
                                     </p>
                                 </div>
                             </div>
@@ -220,17 +222,17 @@ export default function Home() {
             </section>
 
             {/* Call to Action Section */}
-            <section className="py-20 px-6">
+            <section className="py-20 px-6 bg-gradient-to-br from-slate-900 to-slate-800">
                 <div className="max-w-5xl mx-auto text-center">
-                    <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-4">
+                    <h2 className="text-2xl md:text-3xl font-semibold text-white mb-4">
                         Have a project in mind?
                     </h2>
-                    <p className="text-slate-500 mb-8 max-w-md mx-auto">
+                    <p className="text-slate-300 mb-8 max-w-md mx-auto">
                         Tell us about your requirements. We'll get back to you within 24 hours.
                     </p>
                     <Link
                         to="/contact"
-                        className="inline-flex items-center gap-2 bg-slate-900 text-white px-8 py-4 rounded-md hover:bg-slate-800 transition-colors text-base font-medium"
+                        className="inline-flex items-center gap-2 bg-white text-slate-900 px-8 py-4 rounded-xl hover:bg-slate-100 transition-colors text-base font-semibold shadow-lg"
                     >
                         Talk to us about your project
                         <ArrowRight className="w-4 h-4" />
