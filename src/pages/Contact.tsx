@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Phone, Mail, MapPin, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Phone, Mail, MapPin, CheckCircle, MessageCircle, Clock, AlertCircle } from 'lucide-react';
 import { API_URL } from '@/lib/utils';
 
 export default function Contact() {
@@ -8,7 +8,8 @@ export default function Contact() {
         name: '',
         email: '',
         phone: '',
-        requirement: ''
+        requirement: '',
+        website: '' // Honeypot field for spam protection
     });
     const [loading, setLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
@@ -16,16 +17,24 @@ export default function Contact() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        // Honeypot check - if filled, it's a bot
+        if (formData.website) {
+            setSubmitted(true); // Fake success for bots
+            return;
+        }
+        
         setLoading(true);
         setError('');
 
         try {
+            const { website, ...submitData } = formData; // Remove honeypot from submission
             const response = await fetch(`${API_URL}/api/contact`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(submitData),
             });
 
             if (!response.ok) {
@@ -33,10 +42,10 @@ export default function Contact() {
             }
 
             setSubmitted(true);
-            setFormData({ name: '', email: '', phone: '', requirement: '' });
+            setFormData({ name: '', email: '', phone: '', requirement: '', website: '' });
         } catch (err) {
             console.error('Failed to submit:', err);
-            setError('Something went wrong. Please try again or contact us directly.');
+            setError('failed');
         } finally {
             setLoading(false);
         }
@@ -58,15 +67,55 @@ export default function Contact() {
 
                 <div className="pt-32 pb-20 px-6">
                     <div className="max-w-md mx-auto text-center">
-                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <CheckCircle className="w-8 h-8 text-green-600" />
+                        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-8">
+                            <CheckCircle className="w-10 h-10 text-green-600" />
                         </div>
-                        <h1 className="text-2xl font-semibold text-slate-900 mb-4">
-                            Message Sent Successfully
+                        <h1 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-4">
+                            Message Received
                         </h1>
-                        <p className="text-slate-500 mb-8">
-                            Thank you for reaching out. We'll get back to you within 24 hours.
+                        <p className="text-slate-600 mb-2">
+                            Thanks for reaching out.
                         </p>
+                        <p className="text-slate-500 mb-8">
+                            We've received your details and will get back to you <strong className="text-slate-700">within 24 hours</strong>.
+                        </p>
+                        
+                        {/* What happens next */}
+                        <div className="bg-slate-50 rounded-lg p-6 mb-8 text-left">
+                            <div className="flex items-center gap-2 mb-4">
+                                <Clock className="w-4 h-4 text-slate-500" />
+                                <span className="text-sm font-medium text-slate-700">What happens next?</span>
+                            </div>
+                            <ul className="text-sm text-slate-600 space-y-2">
+                                <li>• We'll review your requirements</li>
+                                <li>• Our team will contact you via email or phone</li>
+                                <li>• We'll discuss your project in detail</li>
+                            </ul>
+                        </div>
+
+                        {/* Urgent contact options */}
+                        <div className="border border-slate-200 rounded-lg p-6 mb-8">
+                            <p className="text-sm text-slate-500 mb-4">For urgent queries, contact us directly:</p>
+                            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                                <a
+                                    href="tel:+919495712853"
+                                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-md hover:bg-slate-800 transition-colors text-sm font-medium"
+                                >
+                                    <Phone className="w-4 h-4" />
+                                    Call Us
+                                </a>
+                                <a
+                                    href="https://wa.me/919495712853"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
+                                >
+                                    <MessageCircle className="w-4 h-4" />
+                                    WhatsApp
+                                </a>
+                            </div>
+                        </div>
+
                         <Link
                             to="/"
                             className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900"
@@ -190,8 +239,51 @@ export default function Contact() {
                                     />
                                 </div>
 
+                                {/* Honeypot field - hidden from real users */}
+                                <div className="absolute -left-[9999px]" aria-hidden="true">
+                                    <input
+                                        type="text"
+                                        name="website"
+                                        tabIndex={-1}
+                                        autoComplete="off"
+                                        value={formData.website}
+                                        onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                                    />
+                                </div>
+
                                 {error && (
-                                    <p className="text-red-600 text-sm">{error}</p>
+                                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                                        <div className="flex items-start gap-3">
+                                            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                                            <div>
+                                                <p className="text-sm text-red-700 mb-2">
+                                                    Something went wrong. Please try again or contact us directly.
+                                                </p>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <a
+                                                        href="tel:+919495712853"
+                                                        className="inline-flex items-center gap-1 text-xs text-red-600 hover:text-red-800"
+                                                    >
+                                                        <Phone className="w-3 h-3" /> Call
+                                                    </a>
+                                                    <a
+                                                        href="https://wa.me/919495712853"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="inline-flex items-center gap-1 text-xs text-green-600 hover:text-green-800"
+                                                    >
+                                                        <MessageCircle className="w-3 h-3" /> WhatsApp
+                                                    </a>
+                                                    <a
+                                                        href="mailto:hexastack78@gmail.com"
+                                                        className="inline-flex items-center gap-1 text-xs text-red-600 hover:text-red-800"
+                                                    >
+                                                        <Mail className="w-3 h-3" /> Email
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 )}
 
                                 <button
@@ -233,6 +325,19 @@ export default function Contact() {
                                     </div>
 
                                     <div>
+                                        <h3 className="text-sm font-medium text-slate-500 mb-3">WhatsApp</h3>
+                                        <a
+                                            href="https://wa.me/919495712853"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-3 text-green-600 hover:text-green-700 transition-colors"
+                                        >
+                                            <MessageCircle className="w-4 h-4" />
+                                            Chat on WhatsApp
+                                        </a>
+                                    </div>
+
+                                    <div>
                                         <h3 className="text-sm font-medium text-slate-500 mb-3">Email</h3>
                                         <a
                                             href="mailto:hexastack78@gmail.com"
@@ -253,8 +358,11 @@ export default function Contact() {
                                 </div>
 
                                 <div className="mt-8 pt-6 border-t border-slate-200">
-                                    <p className="text-sm text-slate-500">
+                                    <p className="text-sm text-slate-500 mb-1">
                                         We typically respond within 24 hours.
+                                    </p>
+                                    <p className="text-xs text-slate-400">
+                                        Working hours: Mon-Sat, 10AM-7PM IST
                                     </p>
                                 </div>
                             </div>

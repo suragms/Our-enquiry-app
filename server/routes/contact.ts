@@ -3,28 +3,69 @@ import { db } from '../db';
 
 const router = express.Router();
 
+// Email validation helper
+const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+};
+
+// Sanitize input
+const sanitize = (str: string): string => {
+    return str.trim().slice(0, 1000); // Limit length
+};
+
 // Create new enquiry
 router.post('/', async (req, res) => {
     try {
         const { name, email, phone, requirement } = req.body;
 
+        // Validate required fields
         if (!name || !email || !requirement) {
-            return res.status(400).json({ error: 'Missing required fields' });
+            return res.status(400).json({ 
+                error: 'Missing required fields',
+                message: 'Please fill in all required fields.' 
+            });
         }
 
+        // Validate email format
+        if (!isValidEmail(email)) {
+            return res.status(400).json({ 
+                error: 'Invalid email',
+                message: 'Please enter a valid email address.' 
+            });
+        }
+
+        // Validate name length
+        if (name.trim().length < 2) {
+            return res.status(400).json({ 
+                error: 'Name too short',
+                message: 'Please enter your full name.' 
+            });
+        }
+
+        // Create enquiry
         const message = await db.contactMessage.create({
             data: {
-                name,
-                email,
-                phone: phone || null,
-                requirement,
+                name: sanitize(name),
+                email: sanitize(email).toLowerCase(),
+                phone: phone ? sanitize(phone) : null,
+                requirement: sanitize(requirement),
             },
         });
 
-        res.json(message);
+        console.log(`[NEW_ENQUIRY] ${name} <${email}>`);
+
+        res.json({ 
+            success: true,
+            message: 'Enquiry received successfully',
+            id: message.id 
+        });
     } catch (error) {
         console.error('[CONTACT_POST]', error);
-        res.status(500).json({ error: 'Internal Error' });
+        res.status(500).json({ 
+            error: 'Internal Error',
+            message: 'Something went wrong. Please try again.' 
+        });
     }
 });
 
