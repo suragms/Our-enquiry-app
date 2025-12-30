@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Phone, Mail, MapPin, QrCode, Share2, Copy, Check } from 'lucide-react';
+import { ArrowRight, Phone, Mail, MapPin, QrCode, Share2, Copy, Check, Zap, Shield, Clock, Users, Code, Cpu, Globe, Headphones } from 'lucide-react';
 import { SITE_URL } from '@/lib/utils';
 
 export default function Home() {
@@ -125,26 +125,85 @@ export default function Home() {
             </nav>
 
             {/* Hero Section */}
-            <section className="pt-32 pb-20 px-6">
+            <section className="pt-28 pb-20 px-6">
                 <div className="max-w-5xl mx-auto">
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-slate-900 leading-tight mb-6">
-                        Web & AI systems built<br />
-                        for real businesses
-                    </h1>
-                    <p className="text-lg md:text-xl text-slate-600 mb-4">
-                        Real Intelligence. Real Results.
-                    </p>
-                    <p className="text-base text-slate-500 max-w-xl mb-10">
-                        We build practical software solutions that help businesses operate better.
-                        From billing systems to healthcare applications — we deliver what works.
-                    </p>
-                    <Link
-                        to="/contact"
-                        className="inline-flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-md hover:bg-slate-800 transition-colors text-base font-medium"
-                    >
-                        Talk to us about your project
-                        <ArrowRight className="w-4 h-4" />
-                    </Link>
+                    <div className="grid lg:grid-cols-2 gap-12 items-center">
+                        {/* Left - Text */}
+                        <div>
+                            <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+                                <Zap className="w-4 h-4" />
+                                Trusted by businesses across India & UAE
+                            </div>
+                            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight mb-6">
+                                Web & AI systems built for <span className="text-emerald-600">real businesses</span>
+                            </h1>
+                            <p className="text-lg text-slate-600 mb-4">
+                                Real Intelligence. Real Results.
+                            </p>
+                            <p className="text-base text-slate-500 mb-8">
+                                We build practical software solutions that help businesses operate better.
+                                From billing systems to healthcare applications — we deliver what works.
+                            </p>
+                            
+                            {/* Trust indicators */}
+                            <div className="flex flex-wrap gap-6 mb-8">
+                                <div className="flex items-center gap-2 text-sm text-slate-600">
+                                    <Shield className="w-4 h-4 text-emerald-600" />
+                                    Secure & Reliable
+                                </div>
+                                <div className="flex items-center gap-2 text-sm text-slate-600">
+                                    <Clock className="w-4 h-4 text-emerald-600" />
+                                    On-time Delivery
+                                </div>
+                                <div className="flex items-center gap-2 text-sm text-slate-600">
+                                    <Headphones className="w-4 h-4 text-emerald-600" />
+                                    24/7 Support
+                                </div>
+                            </div>
+
+                            <Link
+                                to="/contact"
+                                className="inline-flex items-center gap-2 bg-slate-900 text-white px-6 py-3.5 rounded-xl hover:bg-slate-800 transition-colors text-base font-semibold shadow-lg shadow-slate-900/20"
+                            >
+                                Talk to us about your project
+                                <ArrowRight className="w-4 h-4" />
+                            </Link>
+                        </div>
+
+                        {/* Right - Icons Grid */}
+                        <div className="hidden lg:block">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-6 rounded-2xl border border-slate-200">
+                                    <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mb-4">
+                                        <Code className="w-6 h-6 text-emerald-600" />
+                                    </div>
+                                    <h3 className="font-semibold text-slate-900 mb-1">Clean Code</h3>
+                                    <p className="text-sm text-slate-500">Maintainable & scalable</p>
+                                </div>
+                                <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-6 rounded-2xl border border-slate-200 mt-8">
+                                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                                        <Cpu className="w-6 h-6 text-blue-600" />
+                                    </div>
+                                    <h3 className="font-semibold text-slate-900 mb-1">AI Powered</h3>
+                                    <p className="text-sm text-slate-500">Smart automation</p>
+                                </div>
+                                <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-6 rounded-2xl border border-slate-200">
+                                    <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
+                                        <Globe className="w-6 h-6 text-purple-600" />
+                                    </div>
+                                    <h3 className="font-semibold text-slate-900 mb-1">Cloud Ready</h3>
+                                    <p className="text-sm text-slate-500">Deploy anywhere</p>
+                                </div>
+                                <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-6 rounded-2xl border border-slate-200 mt-8">
+                                    <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-4">
+                                        <Users className="w-6 h-6 text-orange-600" />
+                                    </div>
+                                    <h3 className="font-semibold text-slate-900 mb-1">Client First</h3>
+                                    <p className="text-sm text-slate-500">Your success matters</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
