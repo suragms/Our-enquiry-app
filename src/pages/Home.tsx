@@ -1,9 +1,20 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Phone, Mail, MapPin } from 'lucide-react';
+import { ArrowRight, Phone, Mail, MapPin, QrCode, Share2, Copy, Check } from 'lucide-react';
+import { SITE_URL } from '@/lib/utils';
 
 export default function Home() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [showQR, setShowQR] = useState(false);
+    const [copied, setCopied] = useState(false);
+
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(SITE_URL)}`;
+    
+    const copyLink = () => {
+        navigator.clipboard.writeText(SITE_URL);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     const services = [
         'Web Applications',
@@ -243,7 +254,7 @@ export default function Home() {
             {/* Footer */}
             <footer className="py-12 px-6 bg-slate-900 text-white">
                 <div className="max-w-5xl mx-auto">
-                    <div className="grid md:grid-cols-3 gap-8 mb-8">
+                    <div className="grid md:grid-cols-4 gap-8 mb-8">
                         <div>
                             <h3 className="text-lg font-semibold mb-4">HexaStack AI Solutions</h3>
                             <p className="text-sm text-slate-400 leading-relaxed">
@@ -274,12 +285,75 @@ export default function Home() {
                                 <span>Thrissur, Vatanappally, Kerala</span>
                             </div>
                         </div>
+                        {/* QR Code Section */}
+                        <div>
+                            <h4 className="text-sm font-medium mb-4 text-slate-300">Scan & Share</h4>
+                            <div className="bg-white p-3 rounded-xl inline-block">
+                                <img 
+                                    src={qrCodeUrl} 
+                                    alt="Scan to visit HexaStack" 
+                                    className="w-24 h-24"
+                                />
+                            </div>
+                            <p className="text-xs text-slate-500 mt-2">Scan for our website</p>
+                        </div>
                     </div>
-                    <div className="pt-8 border-t border-slate-800 text-center text-sm text-slate-500">
-                        <p>© {new Date().getFullYear()} HexaStack AI Solutions. All rights reserved.</p>
+                    <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+                        <p className="text-sm text-slate-500">© {new Date().getFullYear()} HexaStack AI Solutions. All rights reserved.</p>
+                        <button 
+                            onClick={copyLink}
+                            className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors"
+                        >
+                            {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                            {copied ? 'Link Copied!' : 'Copy Website Link'}
+                        </button>
                     </div>
                 </div>
             </footer>
+
+            {/* Floating Share Button */}
+            <button
+                onClick={() => setShowQR(!showQR)}
+                className="fixed bottom-24 right-6 bg-slate-900 text-white p-4 rounded-full shadow-lg hover:bg-slate-800 transition-all z-40"
+                title="Share Website"
+            >
+                <Share2 className="w-5 h-5" />
+            </button>
+
+            {/* QR Code Modal */}
+            {showQR && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6" onClick={() => setShowQR(false)}>
+                    <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center" onClick={e => e.stopPropagation()}>
+                        <QrCode className="w-8 h-8 text-slate-900 mx-auto mb-4" />
+                        <h3 className="text-xl font-semibold text-slate-900 mb-2">Scan to Visit</h3>
+                        <p className="text-sm text-slate-500 mb-6">Use this QR code in your marketing materials</p>
+                        <div className="bg-slate-50 p-6 rounded-xl mb-6">
+                            <img 
+                                src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(SITE_URL)}`}
+                                alt="HexaStack QR Code" 
+                                className="w-48 h-48 mx-auto"
+                            />
+                        </div>
+                        <p className="text-xs text-slate-400 mb-4 break-all">{SITE_URL}</p>
+                        <div className="flex gap-3">
+                            <button 
+                                onClick={copyLink}
+                                className="flex-1 flex items-center justify-center gap-2 bg-slate-900 text-white py-3 rounded-xl hover:bg-slate-800 transition-colors font-medium"
+                            >
+                                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                {copied ? 'Copied!' : 'Copy Link'}
+                            </button>
+                            <a 
+                                href={`https://api.qrserver.com/v1/create-qr-code/?size=500x500&format=png&data=${encodeURIComponent(SITE_URL)}`}
+                                download="hexastack-qr.png"
+                                className="flex-1 flex items-center justify-center gap-2 border border-slate-200 text-slate-700 py-3 rounded-xl hover:bg-slate-50 transition-colors font-medium"
+                            >
+                                Download QR
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

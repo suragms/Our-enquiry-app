@@ -5,4 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const API_URL = import.meta.env.PROD ? '/.netlify/functions/api' : (import.meta.env.VITE_API_URL || '');
+// API URL - empty for both dev and prod (API routes are served at /api/*)
+export const API_URL = import.meta.env.VITE_API_URL || '';
+
+// Website URL for QR code and sharing
+export const SITE_URL = 'https://hexastackaisolustions.site';
