@@ -147,7 +147,7 @@ export default function Contact() {
                                 Projects
                             </Link>
                             <span className="text-sm text-slate-900 font-medium">
-                                Contact
+                                Talk to us
                             </span>
                         </div>
                     </div>
@@ -164,11 +164,11 @@ export default function Contact() {
                         <ArrowLeft className="w-4 h-4" />
                         Back to home
                     </Link>
-                    <h1 className="text-3xl md:text-4xl font-semibold text-slate-900 mb-4">
-                        Contact Us
+                    <h1 className="text-2xl md:text-3xl font-medium text-slate-900 mb-4">
+                        Talk to us about your setup
                     </h1>
                     <p className="text-slate-500 max-w-xl">
-                        Tell us about your project and we'll get back to you within 24 hours.
+                        Tell us about your current process. We usually respond within 24 hours.
                     </p>
                 </div>
             </section>
