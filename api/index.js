@@ -184,10 +184,47 @@ app.delete('/api/contact/:id', async (req, res) => {
 // Portfolio
 app.get('/api/portfolio', async (_req, res) => {
     try {
-        const projects = await db.portfolio.findMany({
+        let projects = await db.portfolio.findMany({
             orderBy: { displayOrder: 'asc' },
             include: { media: true }
         });
+        
+        // Seed default projects if none exist
+        if (projects.length === 0) {
+            const defaultProjects = [
+                {
+                    title: 'Abu Dhabi Restaurant POS',
+                    description: 'Complete restaurant management system with real-time order tracking, inventory management, and multi-location support.',
+                    techStack: 'React, Node.js, MongoDB, Socket.io',
+                    featured: true,
+                    displayOrder: 0
+                },
+                {
+                    title: 'Medical Lab Management',
+                    description: 'Comprehensive laboratory information system handling patient records, test results, and automated reporting.',
+                    techStack: 'React, Express, PostgreSQL',
+                    featured: true,
+                    displayOrder: 1
+                },
+                {
+                    title: 'Business Process Automation',
+                    description: 'Custom workflow automation reducing manual data entry by 80% for a logistics company.',
+                    techStack: 'Python, React, AWS',
+                    featured: false,
+                    displayOrder: 2
+                }
+            ];
+            
+            for (const p of defaultProjects) {
+                await db.portfolio.create({ data: p });
+            }
+            
+            projects = await db.portfolio.findMany({
+                orderBy: { displayOrder: 'asc' },
+                include: { media: true }
+            });
+        }
+        
         res.json(projects);
     } catch (error) {
         console.error('[PORTFOLIO_GET]', error);
