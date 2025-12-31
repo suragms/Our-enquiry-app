@@ -3,7 +3,7 @@ import { db } from '../db';
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+router.get('/', async (_req, res) => {
     try {
         const users = await db.user.findMany({
             select: { id: true, name: true, email: true, role: true }

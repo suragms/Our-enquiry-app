@@ -3,7 +3,7 @@ import { db } from '../db';
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+router.get('/', async (_req, res) => {
     try {
         const projects = await db.project.findMany({
             include: {

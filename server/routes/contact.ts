@@ -139,7 +139,7 @@ router.post('/', async (req, res) => {
 });
 
 // Get all enquiries
-router.get('/', async (req, res) => {
+router.get('/', async (_req, res) => {
     try {
         const messages = await db.contactMessage.findMany({
             orderBy: {
