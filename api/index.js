@@ -99,13 +99,21 @@ app.post('/api/contact', async (req, res) => {
     try {
         const { name, email, phone, requirement } = req.body;
 
-        if (!name || !email || !requirement) {
-            return res.status(400).json({ error: 'Missing required fields' });
+        console.log('[CONTACT] Received:', { name, email, phone, requirement: requirement?.slice(0, 50) });
+
+        if (!name || !name.trim()) {
+            return res.status(400).json({ error: 'Name is required' });
+        }
+        if (!email || !email.trim()) {
+            return res.status(400).json({ error: 'Email is required' });
+        }
+        if (!requirement || !requirement.trim()) {
+            return res.status(400).json({ error: 'Project description is required' });
         }
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({ error: 'Invalid email' });
+        // More lenient email validation
+        if (!email.includes('@') || !email.includes('.')) {
+            return res.status(400).json({ error: 'Please enter a valid email address' });
         }
 
         const message = await db.contactMessage.create({
@@ -118,18 +126,20 @@ app.post('/api/contact', async (req, res) => {
         });
 
         // Track form submission
-        const today = new Date().toISOString().split('T')[0];
-        await db.analytics.upsert({
-            where: { date: today },
-            create: { date: today, totalViews: 0, formSubmissions: 1 },
-            update: { formSubmissions: { increment: 1 } }
-        });
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            await db.analytics.upsert({
+                where: { date: today },
+                create: { date: today, totalViews: 0, formSubmissions: 1 },
+                update: { formSubmissions: { increment: 1 } }
+            });
+        } catch (e) { /* ignore */ }
 
         console.log(`[NEW_ENQUIRY] ${name} <${email}>`);
         res.json({ success: true, id: message.id });
     } catch (error) {
         console.error('[CONTACT_POST]', error);
-        res.status(500).json({ error: 'Internal Error' });
+        res.status(500).json({ error: 'Server error. Please try again.' });
     }
 });
 
@@ -182,6 +192,92 @@ app.get('/api/portfolio', async (_req, res) => {
     } catch (error) {
         console.error('[PORTFOLIO_GET]', error);
         res.status(500).json({ error: 'Internal Error' });
+    }
+});
+
+// Create portfolio project
+app.post('/api/portfolio', async (req, res) => {
+    try {
+        const { title, description, techStack, projectUrl, featured, imageUrl } = req.body;
+        
+        if (!title || !description) {
+            return res.status(400).json({ error: 'Title and description required' });
+        }
+        
+        const count = await db.portfolio.count();
+        
+        const project = await db.portfolio.create({
+            data: {
+                title,
+                description,
+                techStack: techStack || null,
+                projectUrl: projectUrl || null,
+                featured: featured || false,
+                displayOrder: count,
+                media: imageUrl ? {
+                    create: { type: 'IMAGE', url: imageUrl }
+                } : undefined
+            },
+            include: { media: true }
+        });
+        
+        res.json(project);
+    } catch (error) {
+        console.error('[PORTFOLIO_POST]', error);
+        res.status(500).json({ error: 'Failed to create project' });
+    }
+});
+
+// Update portfolio project
+app.patch('/api/portfolio/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, description, techStack, projectUrl, featured, displayOrder, imageUrl } = req.body;
+        
+        const updateData = {};
+        if (title) updateData.title = title;
+        if (description) updateData.description = description;
+        if (techStack !== undefined) updateData.techStack = techStack;
+        if (projectUrl !== undefined) updateData.projectUrl = projectUrl;
+        if (featured !== undefined) updateData.featured = featured;
+        if (displayOrder !== undefined) updateData.displayOrder = displayOrder;
+        
+        const project = await db.portfolio.update({
+            where: { id },
+            data: updateData,
+            include: { media: true }
+        });
+        
+        // Handle image update
+        if (imageUrl) {
+            await db.portfolioMedia.deleteMany({ where: { portfolioId: id } });
+            await db.portfolioMedia.create({
+                data: { type: 'IMAGE', url: imageUrl, portfolioId: id }
+            });
+        }
+        
+        const updated = await db.portfolio.findUnique({
+            where: { id },
+            include: { media: true }
+        });
+        
+        res.json(updated);
+    } catch (error) {
+        console.error('[PORTFOLIO_PATCH]', error);
+        res.status(500).json({ error: 'Failed to update project' });
+    }
+});
+
+// Delete portfolio project
+app.delete('/api/portfolio/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await db.portfolioMedia.deleteMany({ where: { portfolioId: id } });
+        await db.portfolio.delete({ where: { id } });
+        res.json({ success: true });
+    } catch (error) {
+        console.error('[PORTFOLIO_DELETE]', error);
+        res.status(500).json({ error: 'Failed to delete project' });
     }
 });
 

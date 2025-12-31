@@ -31,12 +31,16 @@ export default function Contact() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(submitData),
             });
-            if (!response.ok) throw new Error('Failed to submit');
+            const data = await response.json();
+            if (!response.ok) {
+                setError(data.error || 'Failed to submit');
+                return;
+            }
             setSubmitted(true);
             setFormData({ name: '', email: '', phone: '', requirement: '', website: '' });
         } catch (err) {
             console.error('Failed to submit:', err);
-            setError('failed');
+            setError('Network error. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -197,7 +201,7 @@ export default function Contact() {
                                             <div className="flex items-start gap-3">
                                                 <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                                                 <div>
-                                                    <p className="text-red-700 font-medium mb-2">Something went wrong. Try again or contact us directly.</p>
+                                                    <p className="text-red-700 font-medium mb-2">{error}</p>
                                                     <div className="flex flex-wrap gap-3">
                                                         <a href="tel:+919495712853" className="inline-flex items-center gap-1 text-sm text-red-600 hover:text-red-800 font-medium"><Phone className="w-4 h-4" /> Call</a>
                                                         <a href="https://wa.me/919495712853" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-800 font-medium"><MessageCircle className="w-4 h-4" /> WhatsApp</a>
