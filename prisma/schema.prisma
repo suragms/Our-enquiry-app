@@ -181,3 +181,24 @@ model ContactMessage {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model PageView {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  page      String
+  userAgent String?
+  ip        String?
+  referrer  String?
+  createdAt DateTime @default(now())
+}
+
+model Analytics {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  date           String   @unique
+  totalViews     Int      @default(0)
+  homeViews      Int      @default(0)
+  workViews      Int      @default(0)
+  contactViews   Int      @default(0)
+  formSubmissions Int     @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}

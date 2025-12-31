@@ -9,6 +9,7 @@ import usersRouter from './routes/users';
 import settingsRouter from './routes/settings';
 import uploadRouter from './routes/upload';
 import portfolioRouter from './routes/portfolio';
+import analyticsRouter from './routes/analytics';
 
 dotenv.config();
 
@@ -75,6 +76,7 @@ app.use('/api/users', usersRouter as any);
 app.use('/api/settings', settingsRouter as any);
 app.use('/api/upload', uploadRouter as any);
 app.use('/api/portfolio', portfolioRouter as any);
+app.use('/api/analytics', analyticsRouter as any);
 
 app.use((req, res) => {
     res.status(404).json({ error: 'Route not found', path: req.path, originalUrl: req.originalUrl });

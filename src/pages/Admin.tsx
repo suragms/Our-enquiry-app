@@ -4,7 +4,7 @@ import { API_URL } from '@/lib/utils';
 import { 
     Trash2, Mail, Phone, Clock, ArrowLeft, RefreshCw, Lock, LogOut, Shield,
     FolderOpen, Settings, Bell, Plus, Edit2, Save, X, Image, ExternalLink,
-    MessageCircle, AlertCircle, CheckCircle, Upload, ImagePlus
+    MessageCircle, AlertCircle, CheckCircle, Upload, ImagePlus, BarChart3, Eye, Users, TrendingUp
 } from 'lucide-react';
 
 // Admin password
@@ -47,7 +47,15 @@ interface CompanySettings {
     description: string;
 }
 
-type TabType = 'enquiries' | 'projects' | 'settings';
+type TabType = 'enquiries' | 'projects' | 'settings' | 'analytics';
+
+interface AnalyticsStats {
+    today: { totalViews: number; homeViews: number; workViews: number; contactViews: number; formSubmissions: number };
+    last30Days: { totalViews: number; homeViews: number; workViews: number; contactViews: number; formSubmissions: number };
+    totalEnquiries: number;
+    unreadEnquiries: number;
+    recentViews: { page: string; referrer: string | null; createdAt: string }[];
+}
 
 export default function Admin() {
     // Auth state
@@ -58,7 +66,7 @@ export default function Admin() {
     const [isLocked, setIsLocked] = useState(false);
     
     // Tab state
-    const [activeTab, setActiveTab] = useState<TabType>('enquiries');
+    const [activeTab, setActiveTab] = useState<TabType>('analytics');
     
     // Enquiries state
     const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
@@ -104,6 +112,10 @@ export default function Admin() {
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState<string | null>(null);
     
+    // Analytics state
+    const [analytics, setAnalytics] = useState<AnalyticsStats | null>(null);
+    const [analyticsLoading, setAnalyticsLoading] = useState(false);
+    
     // Notifications
     const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -143,6 +155,7 @@ export default function Admin() {
             fetchEnquiries();
             fetchProjects();
             fetchSettings();
+            fetchAnalytics();
         }
     }, [isAuthenticated]);
 
@@ -185,6 +198,22 @@ export default function Admin() {
         setIsAuthenticated(false);
         sessionStorage.removeItem('hexastack_admin_auth');
         sessionStorage.removeItem('hexastack_admin_time');
+    };
+
+    // Analytics handlers
+    const fetchAnalytics = async () => {
+        try {
+            setAnalyticsLoading(true);
+            const response = await fetch(`${API_URL}/api/analytics/stats`);
+            if (response.ok) {
+                const data = await response.json();
+                setAnalytics(data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch analytics:', error);
+        } finally {
+            setAnalyticsLoading(false);
+        }
     };
 
     // Enquiry handlers
@@ -514,6 +543,7 @@ export default function Admin() {
                 <div className="max-w-6xl mx-auto px-6">
                     <div className="flex gap-1">
                         {[
+                            { id: 'analytics', label: 'Analytics', icon: BarChart3 },
                             { id: 'enquiries', label: 'Enquiries', icon: Mail, count: unreadCount },
                             { id: 'projects', label: 'Projects', icon: FolderOpen },
                             { id: 'settings', label: 'Settings', icon: Settings },
@@ -541,6 +571,139 @@ export default function Admin() {
             {/* Content */}
             <div className="max-w-6xl mx-auto px-6 py-8">
                 
+                {/* ANALYTICS TAB */}
+                {activeTab === 'analytics' && (
+                    <div>
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-lg font-semibold text-slate-900">Analytics Dashboard</h2>
+                            <button onClick={fetchAnalytics} className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900">
+                                <RefreshCw className={`w-4 h-4 ${analyticsLoading ? 'animate-spin' : ''}`} />
+                                Refresh
+                            </button>
+                        </div>
+
+                        {analyticsLoading && !analytics ? (
+                            <div className="text-center py-12">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900 mx-auto mb-4" />
+                                <p className="text-slate-500">Loading analytics...</p>
+                            </div>
+                        ) : analytics ? (
+                            <div className="space-y-6">
+                                {/* Today's Stats */}
+                                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                                    <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <Eye className="w-5 h-5 text-blue-600" />
+                                            <span className="text-sm text-slate-500">Today Views</span>
+                                        </div>
+                                        <p className="text-3xl font-bold text-slate-900">{analytics.today.totalViews}</p>
+                                    </div>
+                                    <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <Users className="w-5 h-5 text-emerald-600" />
+                                            <span className="text-sm text-slate-500">Form Submissions</span>
+                                        </div>
+                                        <p className="text-3xl font-bold text-slate-900">{analytics.today.formSubmissions}</p>
+                                    </div>
+                                    <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <Mail className="w-5 h-5 text-orange-600" />
+                                            <span className="text-sm text-slate-500">Total Enquiries</span>
+                                        </div>
+                                        <p className="text-3xl font-bold text-slate-900">{analytics.totalEnquiries}</p>
+                                    </div>
+                                    <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <Bell className="w-5 h-5 text-red-600" />
+                                            <span className="text-sm text-slate-500">Unread</span>
+                                        </div>
+                                        <p className="text-3xl font-bold text-slate-900">{analytics.unreadEnquiries}</p>
+                                    </div>
+                                    <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <TrendingUp className="w-5 h-5 text-purple-600" />
+                                            <span className="text-sm text-slate-500">30-Day Views</span>
+                                        </div>
+                                        <p className="text-3xl font-bold text-slate-900">{analytics.last30Days.totalViews}</p>
+                                    </div>
+                                </div>
+
+                                {/* Page Breakdown */}
+                                <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
+                                    <h3 className="text-lg font-semibold text-slate-900 mb-4">Page Views (Last 30 Days)</h3>
+                                    <div className="grid grid-cols-3 gap-4">
+                                        <div className="text-center p-4 bg-slate-50 rounded-lg">
+                                            <p className="text-2xl font-bold text-slate-900">{analytics.last30Days.homeViews}</p>
+                                            <p className="text-sm text-slate-500">Home Page</p>
+                                        </div>
+                                        <div className="text-center p-4 bg-slate-50 rounded-lg">
+                                            <p className="text-2xl font-bold text-slate-900">{analytics.last30Days.workViews}</p>
+                                            <p className="text-sm text-slate-500">Work Page</p>
+                                        </div>
+                                        <div className="text-center p-4 bg-slate-50 rounded-lg">
+                                            <p className="text-2xl font-bold text-slate-900">{analytics.last30Days.contactViews}</p>
+                                            <p className="text-sm text-slate-500">Contact Page</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Conversion Rate */}
+                                <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
+                                    <h3 className="text-lg font-semibold text-slate-900 mb-4">Conversion Metrics</h3>
+                                    <div className="grid grid-cols-2 gap-6">
+                                        <div>
+                                            <p className="text-sm text-slate-500 mb-1">Contact Page → Form Submit (30 days)</p>
+                                            <p className="text-2xl font-bold text-emerald-600">
+                                                {analytics.last30Days.contactViews > 0 
+                                                    ? Math.round((analytics.last30Days.formSubmissions / analytics.last30Days.contactViews) * 100) 
+                                                    : 0}%
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-slate-500 mb-1">Total Submissions (30 days)</p>
+                                            <p className="text-2xl font-bold text-blue-600">{analytics.last30Days.formSubmissions}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Recent Activity */}
+                                <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
+                                    <h3 className="text-lg font-semibold text-slate-900 mb-4">Recent Visits</h3>
+                                    {analytics.recentViews.length > 0 ? (
+                                        <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                                            {analytics.recentViews.map((view, idx) => (
+                                                <div key={idx} className="flex items-center justify-between py-2 px-3 bg-slate-50 rounded text-sm">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className={`w-2 h-2 rounded-full ${
+                                                            view.page === '/' ? 'bg-blue-500' : 
+                                                            view.page === '/work' ? 'bg-emerald-500' : 
+                                                            view.page === '/contact' ? 'bg-orange-500' : 'bg-slate-400'
+                                                        }`} />
+                                                        <span className="font-medium text-slate-700">
+                                                            {view.page === '/' ? 'Home' : view.page.replace('/', '').charAt(0).toUpperCase() + view.page.slice(2)}
+                                                        </span>
+                                                    </div>
+                                                    <span className="text-slate-400 text-xs">
+                                                        {new Date(view.createdAt).toLocaleString()}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-slate-500 text-center py-4">No recent visits tracked yet</p>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="text-center py-12 bg-white rounded-lg border border-slate-200">
+                                <BarChart3 className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                                <h3 className="text-lg font-medium text-slate-700 mb-2">No analytics data yet</h3>
+                                <p className="text-slate-500">Visitor tracking will begin once deployed.</p>
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* ENQUIRIES TAB */}
                 {activeTab === 'enquiries' && (
                     <div>

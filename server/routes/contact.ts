@@ -112,6 +112,18 @@ router.post('/', async (req, res) => {
         // Send email notification to admin (async, don't block response)
         sendEmailNotification(name, email, phone, requirement);
 
+        // Track form submission for analytics
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            await db.analytics.upsert({
+                where: { date: today },
+                create: { date: today, totalViews: 0, formSubmissions: 1 },
+                update: { formSubmissions: { increment: 1 } }
+            });
+        } catch (e) {
+            // Ignore analytics errors
+        }
+
         res.json({ 
             success: true,
             message: 'Enquiry received successfully',
