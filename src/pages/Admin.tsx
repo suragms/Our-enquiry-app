@@ -863,9 +863,9 @@ export default function Admin() {
 
                         {/* Project Form Modal */}
                         {showProjectForm && (
-                            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
-                                <div className="bg-white rounded-lg w-full max-w-lg p-6">
-                                    <div className="flex justify-between items-center mb-6">
+                            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowProjectForm(false)}>
+                                <div className="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
+                                    <div className="flex justify-between items-center mb-4">
                                         <h3 className="text-lg font-semibold text-slate-900">
                                             {editingProject ? 'Edit Project' : 'Add New Project'}
                                         </h3>
@@ -874,25 +874,15 @@ export default function Admin() {
                                         </button>
                                     </div>
 
-                                    <div className="space-y-4">
+                                    <div className="grid md:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-sm font-medium text-slate-700 mb-1">Title *</label>
                                             <input
                                                 type="text"
                                                 value={projectForm.title}
                                                 onChange={(e) => setProjectForm({ ...projectForm, title: e.target.value })}
-                                                className="w-full px-4 py-2 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900"
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 text-sm"
                                                 placeholder="Project title"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-1">Description *</label>
-                                            <textarea
-                                                value={projectForm.description}
-                                                onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
-                                                className="w-full px-4 py-2 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900"
-                                                rows={3}
-                                                placeholder="Project description"
                                             />
                                         </div>
                                         <div>
@@ -901,8 +891,18 @@ export default function Admin() {
                                                 type="text"
                                                 value={projectForm.techStack}
                                                 onChange={(e) => setProjectForm({ ...projectForm, techStack: e.target.value })}
-                                                className="w-full px-4 py-2 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900"
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 text-sm"
                                                 placeholder="React, Node.js, MongoDB..."
+                                            />
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-medium text-slate-700 mb-1">Description *</label>
+                                            <textarea
+                                                value={projectForm.description}
+                                                onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 text-sm"
+                                                rows={2}
+                                                placeholder="Project description"
                                             />
                                         </div>
                                         <div>
@@ -911,31 +911,28 @@ export default function Admin() {
                                                 type="url"
                                                 value={projectForm.projectUrl}
                                                 onChange={(e) => setProjectForm({ ...projectForm, projectUrl: e.target.value })}
-                                                className="w-full px-4 py-2 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900"
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 text-sm"
                                                 placeholder="https://..."
                                             />
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <input
-                                                type="checkbox"
-                                                id="featured"
-                                                checked={projectForm.featured}
-                                                onChange={(e) => setProjectForm({ ...projectForm, featured: e.target.checked })}
-                                                className="w-4 h-4"
-                                            />
-                                            <label htmlFor="featured" className="text-sm text-slate-700">Featured project</label>
-                                        </div>
-                                        
-                                        {/* Image Upload */}
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-1">Project Image</label>
-                                            <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="checkbox"
+                                                    id="featured"
+                                                    checked={projectForm.featured}
+                                                    onChange={(e) => setProjectForm({ ...projectForm, featured: e.target.checked })}
+                                                    className="w-4 h-4"
+                                                />
+                                                <label htmlFor="featured" className="text-sm text-slate-700">Featured</label>
+                                            </div>
+                                            <div className="flex items-center gap-2">
                                                 {projectForm.imageUrl ? (
-                                                    <div className="relative w-24 h-24 rounded-lg overflow-hidden border border-slate-200">
+                                                    <div className="relative w-12 h-12 rounded overflow-hidden border border-slate-200">
                                                         <img src={projectForm.imageUrl} alt="Project" className="w-full h-full object-cover" />
                                                         <button
                                                             onClick={() => setProjectForm({ ...projectForm, imageUrl: '' })}
-                                                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                                                            className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600"
                                                         >
                                                             <X className="w-3 h-3" />
                                                         </button>
@@ -943,15 +940,12 @@ export default function Admin() {
                                                 ) : (
                                                     <div
                                                         onClick={() => fileInputRef.current?.click()}
-                                                        className="w-24 h-24 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-slate-400 transition-colors"
+                                                        className="w-12 h-12 border-2 border-dashed border-slate-300 rounded flex items-center justify-center cursor-pointer hover:border-slate-400"
                                                     >
                                                         {uploading ? (
-                                                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-600" />
+                                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-slate-600" />
                                                         ) : (
-                                                            <>
-                                                                <ImagePlus className="w-6 h-6 text-slate-400" />
-                                                                <span className="text-xs text-slate-400 mt-1">Upload</span>
-                                                            </>
+                                                            <ImagePlus className="w-5 h-5 text-slate-400" />
                                                         )}
                                                     </div>
                                                 )}
@@ -962,15 +956,12 @@ export default function Admin() {
                                                     onChange={handleImageUpload}
                                                     className="hidden"
                                                 />
-                                                <div className="text-xs text-slate-500">
-                                                    <p>Max 5MB</p>
-                                                    <p>JPG, PNG, WebP</p>
-                                                </div>
+                                                <span className="text-xs text-slate-500">Image</span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="flex gap-3 mt-6">
+                                    <div className="flex gap-3 mt-4 pt-4 border-t border-slate-100">
                                         <button
                                             onClick={() => setShowProjectForm(false)}
                                             className="flex-1 px-4 py-2 border border-slate-200 rounded-md hover:bg-slate-50 text-sm font-medium"
