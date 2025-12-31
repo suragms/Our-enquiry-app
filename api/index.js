@@ -1,6 +1,6 @@
-import express from 'express';
-import cors from 'cors';
-import { PrismaClient } from '@prisma/client';
+const express = require('express');
+const cors = require('cors');
+const { PrismaClient } = require('@prisma/client');
 
 const app = express();
 const db = new PrismaClient();
@@ -18,7 +18,7 @@ app.get('/api/health', async (_req, res) => {
         await db.$connect();
         res.json({ status: 'ok', db: 'connected' });
     } catch (error) {
-        res.status(500).json({ status: 'error', error: (error as Error).message });
+        res.status(500).json({ status: 'error', error: error.message });
     }
 });
 
@@ -30,7 +30,7 @@ app.post('/api/analytics/track', async (req, res) => {
             data: {
                 page: page || 'unknown',
                 userAgent: (req.headers['user-agent'] || '').slice(0, 500),
-                ip: (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || null,
+                ip: req.headers['x-forwarded-for']?.split(',')[0]?.trim() || null,
                 referrer: (req.headers['referer'] || '').slice(0, 500) || null,
             }
         });
@@ -149,7 +149,7 @@ app.patch('/api/contact/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { isRead, isStarred } = req.body;
-        const updateData: Record<string, boolean> = {};
+        const updateData = {};
         if (typeof isRead === 'boolean') updateData.isRead = isRead;
         if (typeof isStarred === 'boolean') updateData.isStarred = isStarred;
         const message = await db.contactMessage.update({ where: { id }, data: updateData });
@@ -216,4 +216,4 @@ app.use((req, res) => {
     res.status(404).json({ error: 'Route not found', path: req.path });
 });
 
-export default app;
+module.exports = app;
