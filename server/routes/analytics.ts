@@ -48,7 +48,7 @@ router.post('/track', async (req, res) => {
 });
 
 // Increment form submission count
-router.post('/form-submit', async (req, res) => {
+router.post('/form-submit', async (_req, res) => {
     try {
         const today = new Date().toISOString().split('T')[0];
         
@@ -72,7 +72,7 @@ router.post('/form-submit', async (req, res) => {
 });
 
 // Get analytics stats
-router.get('/stats', async (req, res) => {
+router.get('/stats', async (_req, res) => {
     try {
         // Get last 30 days
         const thirtyDaysAgo = new Date();
