@@ -1,7 +1,7 @@
 {
+    "buildCommand": "prisma generate && npm run build",
     "functions": {
         "api/index.ts": {
-            "memory": 1024,
             "maxDuration": 30
         }
     },
