@@ -10,7 +10,10 @@ import settingsRouter from './routes/settings';
 import uploadRouter from './routes/upload';
 import portfolioRouter from './routes/portfolio';
 import analyticsRouter from './routes/analytics';
+import servicesRouter from './routes/services';
+import productsRouter from './routes/products';
 
+// Triggering server restart for new routes...
 dotenv.config();
 
 export const app = express();
@@ -77,6 +80,8 @@ app.use('/api/settings', settingsRouter as any);
 app.use('/api/upload', uploadRouter as any);
 app.use('/api/portfolio', portfolioRouter as any);
 app.use('/api/analytics', analyticsRouter as any);
+app.use('/api/services', servicesRouter as any);
+app.use('/api/products', productsRouter as any);
 
 app.use((req, res) => {
     res.status(404).json({ error: 'Route not found', path: req.path, originalUrl: req.originalUrl });

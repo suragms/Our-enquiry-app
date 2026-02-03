@@ -178,8 +178,8 @@ export default function Work() {
                         <div>
                             <h4 className="text-sm font-bold text-slate-900 mb-3">Contact</h4>
                             <div className="space-y-2 text-sm">
-                                <a href="tel:+919495712853" className="flex items-center gap-2 text-slate-500 hover:text-slate-900">
-                                    <Phone className="w-4 h-4" /> +91 94957 12853
+                                <a href="tel:+917012714150" className="flex items-center gap-2 text-slate-500 hover:text-slate-900">
+                                    <Phone className="w-4 h-4" /> +91 70127 14150
                                 </a>
                                 <a href="mailto:hexastack78@gmail.com" className="flex items-center gap-2 text-slate-500 hover:text-slate-900">
                                     <Mail className="w-4 h-4" /> hexastack78@gmail.com

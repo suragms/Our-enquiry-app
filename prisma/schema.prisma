@@ -202,3 +202,26 @@ model Analytics {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
+
+model Service {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  icon         String   // URL to the JPG/PNG file
+  link         String?
+  isComingSoon Boolean  @default(false)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Product {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  link         String?
+  description  String
+  features     String[] // Array of features
+  isComingSoon Boolean  @default(false)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

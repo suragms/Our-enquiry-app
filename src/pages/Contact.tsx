@@ -66,7 +66,7 @@ export default function Contact() {
                             <h1 className="text-3xl font-bold text-slate-900 mb-4">Message Received</h1>
                             <p className="text-lg text-slate-600 mb-2">Thanks for reaching out.</p>
                             <p className="text-slate-500 mb-8">We'll get back to you <strong className="text-slate-700">within 24 hours</strong>.</p>
-                            
+
                             <div className="bg-slate-50 rounded-2xl p-6 mb-8 text-left border border-slate-100">
                                 <div className="flex items-center gap-2 mb-4">
                                     <Clock className="w-5 h-5 text-slate-500" />
@@ -82,10 +82,10 @@ export default function Contact() {
                             <div className="bg-white rounded-2xl p-6 mb-8 border-2 border-slate-200">
                                 <p className="text-sm text-slate-500 mb-4">For urgent queries:</p>
                                 <div className="flex flex-col sm:flex-row gap-3">
-                                    <a href="tel:+919495712853" className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors font-medium">
+                                    <a href="tel:+917012714150" className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors font-medium">
                                         <Phone className="w-4 h-4" /> Call Us
                                     </a>
-                                    <a href="https://wa.me/919495712853" target="_blank" rel="noopener noreferrer" className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-medium">
+                                    <a href="https://wa.me/917012714150" target="_blank" rel="noopener noreferrer" className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-medium">
                                         <MessageCircle className="w-4 h-4" /> WhatsApp
                                     </a>
                                 </div>
@@ -203,8 +203,8 @@ export default function Contact() {
                                                 <div>
                                                     <p className="text-red-700 font-medium mb-2">{error}</p>
                                                     <div className="flex flex-wrap gap-3">
-                                                        <a href="tel:+919495712853" className="inline-flex items-center gap-1 text-sm text-red-600 hover:text-red-800 font-medium"><Phone className="w-4 h-4" /> Call</a>
-                                                        <a href="https://wa.me/919495712853" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-800 font-medium"><MessageCircle className="w-4 h-4" /> WhatsApp</a>
+                                                        <a href="tel:+917012714150" className="inline-flex items-center gap-1 text-sm text-red-600 hover:text-red-800 font-medium"><Phone className="w-4 h-4" /> Call</a>
+                                                        <a href="https://wa.me/917012714150" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-800 font-medium"><MessageCircle className="w-4 h-4" /> WhatsApp</a>
                                                         <a href="mailto:hexastack78@gmail.com" className="inline-flex items-center gap-1 text-sm text-red-600 hover:text-red-800 font-medium"><Mail className="w-4 h-4" /> Email</a>
                                                     </div>
                                                 </div>
@@ -233,8 +233,8 @@ export default function Contact() {
                                     <div className="bg-slate-50 rounded-xl p-5 border border-slate-100">
                                         <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Phone / WhatsApp</h3>
                                         <div className="space-y-2">
-                                            <a href="https://wa.me/919495712853" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
-                                                <Phone className="w-4 h-4" /> +91 94957 12853
+                                            <a href="https://wa.me/917012714150" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
+                                                <Phone className="w-4 h-4" /> +91 70127 14150
                                             </a>
                                             <a href="https://wa.me/917591999365" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
                                                 <Phone className="w-4 h-4" /> +91 75919 99365
