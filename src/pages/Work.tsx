@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Phone, Mail, MapPin, CheckCircle } from 'lucide-react';
+import SEO from '@/components/SEO';
 
 export default function Work() {
     const projects = [
@@ -40,28 +41,47 @@ export default function Work() {
 
     const getColorClasses = (color: string) => {
         const colors: Record<string, { badge: string; border: string; accent: string; light: string }> = {
-            emerald: { badge: 'bg-emerald-100 text-emerald-700', border: 'border-emerald-200', accent: 'text-emerald-600', light: 'bg-emerald-50' },
-            blue: { badge: 'bg-blue-100 text-blue-700', border: 'border-blue-200', accent: 'text-blue-600', light: 'bg-blue-50' },
-            orange: { badge: 'bg-orange-100 text-orange-700', border: 'border-orange-200', accent: 'text-orange-600', light: 'bg-orange-50' }
+            emerald: { badge: 'bg-black text-white', border: 'border-neutral-100', accent: 'text-black', light: 'bg-neutral-50' },
+            blue: { badge: 'bg-black text-white', border: 'border-neutral-100', accent: 'text-black', light: 'bg-neutral-50' },
+            orange: { badge: 'bg-black text-white', border: 'border-neutral-100', accent: 'text-black', light: 'bg-neutral-50' }
         };
         return colors[color] || colors.emerald;
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased">
+        <div className="min-h-screen bg-white text-black font-sans antialiased selection:bg-black selection:text-white">
+            <SEO
+                title="Our Work | Custom Software Portfolio | Hexastack AI Solutions"
+                description="Explore our successful projects including advanced POS systems in Abu Dhabi, medical laboratory management software in Kerala, and end-to-end business automation."
+                keywords="software portfolio Kerala, POS system case studies, healthcare software examples, automation project gallery, software engineering portfolio, client success stories Thrissur, custom software development UAE, medical software implementation, business tool automation results, industrial automation software, billing software portfolio"
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "CollectionPage",
+                    "name": "Our Work - Portfolio",
+                    "description": "Selected projects and case studies by Hexastack AI Solutions.",
+                    "mainEntity": {
+                        "@type": "ItemList",
+                        "itemListElement": [
+                            { "@type": "ListItem", "position": 1, "name": "Abu Dhabi Trading POS System" },
+                            { "@type": "ListItem", "position": 2, "name": "Medical Lab Management Suite" },
+                            { "@type": "ListItem", "position": 3, "name": "Business Process Automation" }
+                        ]
+                    }
+                }}
+            />
             {/* Navigation */}
-            <nav className="fixed top-0 w-full bg-white z-50 border-b border-slate-200 shadow-sm">
-                <div className="max-w-5xl mx-auto px-6">
-                    <div className="flex justify-between items-center h-16">
-                        <Link to="/" className="text-xl font-bold text-slate-900">HexaStack</Link>
-                        <div className="hidden md:flex items-center gap-8">
-                            <Link to="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">Home</Link>
-                            <span className="text-sm font-semibold text-slate-900">Work</span>
-                            <Link to="/contact" className="text-sm font-semibold bg-slate-900 text-white px-5 py-2.5 rounded-lg hover:bg-slate-800">
+            <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-neutral-100">
+                <div className="max-w-6xl mx-auto px-8">
+                    <div className="flex justify-between items-center h-20">
+                        <Link to="/" className="text-2xl font-bold text-black tracking-tighter">Hexastack<span className="text-neutral-300"> AI Solutions.</span></Link>
+                        <div className="hidden md:flex items-center gap-10">
+                            <Link to="/" className="text-sm font-bold text-neutral-400 hover:text-black transition-colors uppercase tracking-widest">Home</Link>
+                            <span className="text-sm font-bold text-black uppercase tracking-widest border-b border-black">Work</span>
+                            <Link to="/contact" className="bg-black text-white px-8 py-3 rounded-full text-sm font-bold hover:bg-neutral-800 transition-all active:scale-95">
                                 Get in touch
                             </Link>
                         </div>
-                        <Link to="/contact" className="md:hidden bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                        <Link to="/contact" className="md:hidden bg-black text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest">
                             Contact
                         </Link>
                     </div>
@@ -69,15 +89,15 @@ export default function Work() {
             </nav>
 
             {/* Header */}
-            <section className="pt-24 pb-8 px-6">
-                <div className="max-w-5xl mx-auto">
-                    <Link to="/" className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 mb-6">
+            <section className="pt-40 pb-16 px-8">
+                <div className="max-w-6xl mx-auto">
+                    <Link to="/" className="inline-flex items-center gap-2 text-neutral-400 hover:text-black mb-12 transition-colors font-bold uppercase text-[10px] tracking-widest">
                         <ArrowLeft className="w-4 h-4" /> Back to home
                     </Link>
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-lg p-8 md:p-10">
-                        <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Our Work</h1>
-                        <p className="text-lg text-slate-500 max-w-2xl">
-                            Real projects for real businesses. No fake metrics — just honest work that solves actual problems.
+                    <div className="bg-neutral-50 rounded-[3rem] border border-neutral-100 p-12 md:p-20">
+                        <h1 className="text-5xl md:text-7xl font-bold text-black mb-8 tracking-tighter">Selected <br />Projects</h1>
+                        <p className="text-xl text-neutral-500 max-w-xl leading-relaxed">
+                            Real systems for real businesses. Honest work that solves actual operational challenges.
                         </p>
                     </div>
                 </div>
@@ -94,49 +114,48 @@ export default function Work() {
                                 className="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
                             >
                                 {/* Project Header */}
-                                <div className={`px-8 py-6 ${colors.light} border-b ${colors.border}`}>
-                                    <div className="flex flex-wrap items-center gap-3 mb-3">
-                                        <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${colors.badge}`}>
+                                <div className={`px-10 py-10 ${colors.light} border-b ${colors.border}`}>
+                                    <div className="flex flex-wrap items-center gap-4 mb-6">
+                                        <span className={`text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest ${colors.badge}`}>
                                             {project.type}
                                         </span>
-                                        <span className="text-xs font-medium text-slate-500 bg-white px-3 py-1.5 rounded-full border border-slate-200">
-                                            {project.industry}
+                                        <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
+                                            {project.industry} • {project.location}
                                         </span>
-                                        <span className="text-xs text-slate-400">{project.location}</span>
                                     </div>
-                                    <h2 className="text-2xl md:text-3xl font-bold text-slate-900">{project.title}</h2>
+                                    <h2 className="text-3xl md:text-4xl font-bold text-black tracking-tighter">{project.title}</h2>
                                 </div>
 
                                 {/* Project Body */}
-                                <div className="p-8">
+                                <div className="p-10">
                                     {/* Result */}
-                                    <div className="mb-6">
-                                        <div className="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg">
-                                            <CheckCircle className="w-4 h-4 text-emerald-400" />
-                                            <span className="text-sm font-bold">Result: {project.result}</span>
+                                    <div className="mb-10">
+                                        <div className="inline-flex items-center gap-3 bg-black text-white px-5 py-3 rounded-full">
+                                            <CheckCircle className="w-4 h-4" />
+                                            <span className="text-xs font-bold uppercase tracking-widest">Result: {project.result}</span>
                                         </div>
                                     </div>
 
                                     {/* Problem & Solution Grid */}
-                                    <div className="grid md:grid-cols-2 gap-6 mb-6">
-                                        <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-                                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">The Challenge</h3>
-                                            <p className="text-slate-700 leading-relaxed">{project.problem}</p>
+                                    <div className="grid md:grid-cols-2 gap-8 mb-10">
+                                        <div className="bg-neutral-50 rounded-2xl p-8 border border-neutral-100">
+                                            <h3 className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em] mb-4">The Challenge</h3>
+                                            <p className="text-black font-medium leading-relaxed">{project.problem}</p>
                                         </div>
-                                        <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-                                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Our Solution</h3>
-                                            <p className="text-slate-700 leading-relaxed">{project.solution}</p>
+                                        <div className="bg-neutral-50 rounded-2xl p-8 border border-neutral-100">
+                                            <h3 className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em] mb-4">Our Solution</h3>
+                                            <p className="text-black font-medium leading-relaxed">{project.solution}</p>
                                         </div>
                                     </div>
 
                                     {/* Highlights */}
-                                    <div className="pt-6 border-t border-slate-100">
-                                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Key Features</h4>
-                                        <div className="flex flex-wrap gap-2">
+                                    <div className="pt-10 border-t border-neutral-50">
+                                        <h4 className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-6">Key Engineering Highlights</h4>
+                                        <div className="flex flex-wrap gap-3">
                                             {project.highlights.map((highlight, i) => (
                                                 <span
                                                     key={i}
-                                                    className={`text-sm font-medium px-4 py-2 rounded-lg border ${colors.border} ${colors.light} ${colors.accent}`}
+                                                    className={`text-xs font-bold px-5 py-2.5 rounded-full border border-neutral-100 bg-white text-black uppercase tracking-widest`}
                                                 >
                                                     {highlight}
                                                 </span>
@@ -151,50 +170,54 @@ export default function Work() {
             </section>
 
             {/* CTA */}
-            <section className="py-12 px-6">
-                <div className="max-w-5xl mx-auto">
-                    <div className="bg-slate-900 rounded-2xl p-8 md:p-12 text-center shadow-xl">
-                        <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">Have a similar project?</h2>
-                        <p className="text-slate-400 mb-8 max-w-md mx-auto">Let's discuss how we can help solve your business problem.</p>
+            <section className="py-24 px-8">
+                <div className="max-w-6xl mx-auto">
+                    <div className="bg-black rounded-[4rem] p-16 md:p-24 text-center shadow-2xl">
+                        <h2 className="text-4xl md:text-6xl font-bold text-white mb-8 tracking-tighter">Have a similar project?</h2>
+                        <p className="text-neutral-400 text-lg md:text-xl mb-12 max-w-md mx-auto leading-relaxed">Let's discuss how we can engineer a stable solution for your business.</p>
                         <Link
                             to="/contact"
-                            className="inline-flex items-center gap-2 bg-white text-slate-900 px-8 py-4 rounded-lg hover:bg-slate-100 font-semibold group"
+                            className="inline-flex items-center gap-3 bg-white text-black px-10 py-5 rounded-full hover:bg-neutral-200 transition-all font-bold text-lg active:scale-95 group"
                         >
                             Talk to us
-                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </div>
                 </div>
             </section>
 
             {/* Footer */}
-            <footer className="py-12 px-6 bg-white border-t border-slate-200">
-                <div className="max-w-5xl mx-auto">
-                    <div className="grid md:grid-cols-3 gap-8 mb-8">
+            <footer className="py-16 px-8 border-t border-neutral-100">
+                <div className="max-w-6xl mx-auto">
+                    <div className="grid md:grid-cols-3 gap-16 mb-16">
                         <div>
-                            <h3 className="text-xl font-bold text-slate-900 mb-3">HexaStack</h3>
-                            <p className="text-slate-500">Digital systems that run your business.</p>
+                            <h3 className="text-2xl font-bold text-black mb-6 tracking-tighter">Hexastack<span className="text-neutral-300"> AI Solutions.</span></h3>
+                            <p className="text-neutral-500 leading-relaxed max-w-xs">Engineering reliable digital systems for businesses that value efficiency.</p>
                         </div>
                         <div>
-                            <h4 className="text-sm font-bold text-slate-900 mb-3">Contact</h4>
-                            <div className="space-y-2 text-sm">
-                                <a href="tel:+917012714150" className="flex items-center gap-2 text-slate-500 hover:text-slate-900">
+                            <h4 className="text-[10px] font-bold text-black mb-8 uppercase tracking-[0.3em]">Contact</h4>
+                            <div className="space-y-4">
+                                <a href="tel:+917012714150" className="flex items-center gap-4 text-neutral-500 hover:text-black transition-colors font-medium">
                                     <Phone className="w-4 h-4" /> +91 70127 14150
                                 </a>
-                                <a href="mailto:hexastack78@gmail.com" className="flex items-center gap-2 text-slate-500 hover:text-slate-900">
+                                <a href="tel:+917591999365" className="flex items-center gap-4 text-neutral-500 hover:text-black transition-colors font-medium">
+                                    <Phone className="w-4 h-4" /> +91 75919 99365
+                                </a>
+                                <a href="mailto:hexastack78@gmail.com" className="flex items-center gap-4 text-neutral-500 hover:text-black transition-colors font-medium">
                                     <Mail className="w-4 h-4" /> hexastack78@gmail.com
                                 </a>
                             </div>
                         </div>
                         <div>
-                            <h4 className="text-sm font-bold text-slate-900 mb-3">Location</h4>
-                            <div className="flex items-center gap-2 text-sm text-slate-500">
+                            <h4 className="text-[10px] font-bold text-black mb-8 uppercase tracking-[0.3em]">Base</h4>
+                            <div className="flex items-center gap-4 text-neutral-500 font-medium">
                                 <MapPin className="w-4 h-4" /> Thrissur, Kerala
                             </div>
                         </div>
                     </div>
-                    <div className="pt-6 border-t border-slate-200 text-center text-sm text-slate-400">
-                        © {new Date().getFullYear()} HexaStack. All rights reserved.
+                    <div className="pt-12 border-t border-neutral-100 flex justify-between items-center px-4">
+                        <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">© {new Date().getFullYear()} Hexastack AI Solutions.</p>
+                        <p className="text-[10px] font-bold text-neutral-300 uppercase tracking-widest">Monochrome Edition</p>
                     </div>
                 </div>
             </footer>

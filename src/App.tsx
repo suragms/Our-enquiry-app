@@ -16,7 +16,7 @@ function PageTracker() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ page: location.pathname }),
-        }).catch(() => {}); // Ignore errors silently
+        }).catch(() => { }); // Ignore errors silently
     }, [location.pathname]);
 
     return null;

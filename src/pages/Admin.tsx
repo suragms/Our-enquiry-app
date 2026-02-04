@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { API_URL } from '@/lib/utils';
+import SEO from '@/components/SEO';
 import {
     Trash2, Mail, Phone, Clock, ArrowLeft, RefreshCw, Lock, LogOut, Shield,
     FolderOpen, Settings, Bell, Plus, Edit2, Save, X, ExternalLink,
@@ -679,6 +680,7 @@ export default function Admin() {
     if (!isAuthenticated) {
         return (
             <div className="min-h-screen bg-slate-50 font-sans flex items-center justify-center px-6">
+                <SEO title="Admin Login | Hexastack" description="Secure admin access" noindex />
                 <div className="w-full max-w-sm">
                     <div className="bg-white rounded-lg border border-slate-200 p-8 shadow-sm">
                         <div className="text-center mb-8">
@@ -731,6 +733,7 @@ export default function Admin() {
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans">
+            <SEO title="Admin Dashboard | Hexastack" description="Manage your website" noindex />
             {/* Notification */}
             {notification && (
                 <div className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg ${notification.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
