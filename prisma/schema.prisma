@@ -97,6 +97,7 @@ model WebsiteContent {
 model CompanySettings {
   id                  String   @id @default(auto()) @map("_id") @db.ObjectId
   companyName         String   @default("HexaStack Solutions")
+  logoUrl             String?  // Brand logo (display); optional, fallback to /logo.svg
   primaryEmail        String   @default("anandukrishnapa2000@gmail.com")
   primaryWhatsApp     String   @default("+917591999365")
   secondaryWhatsApp   String?  @default("+917012714150")
@@ -171,15 +172,23 @@ enum TaskStatus {
 }
 
 model ContactMessage {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  email       String
-  phone       String?
-  requirement String
-  isRead      Boolean  @default(false)
-  isStarred   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  name              String
+  email             String
+  phone             String?
+  requirement       String
+  companyName       String?
+  country           String?
+  industry          String?
+  serviceOrProduct  String?
+  budget            String?
+  timeline          String?
+  numberOfBranches  String?
+  currentSystem     String?
+  isRead            Boolean  @default(false)
+  isStarred         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model PageView {
@@ -207,6 +216,7 @@ model Service {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   name         String
   icon         String   // URL to the JPG/PNG file
+  description  String?
   link         String?
   isComingSoon Boolean  @default(false)
   displayOrder Int      @default(0)

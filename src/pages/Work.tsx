@@ -1,226 +1,160 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Phone, Mail, MapPin, CheckCircle } from 'lucide-react';
+import Layout from '@/components/Layout';
 import SEO from '@/components/SEO';
 
 export default function Work() {
-    const projects = [
-        {
-            title: 'Abu Dhabi Trading Company',
-            type: 'POS System',
-            industry: 'Retail',
-            color: 'emerald',
-            location: 'Abu Dhabi, UAE',
-            result: '200+ daily transactions',
-            highlights: ['Multi-currency billing', 'Real-time inventory', 'Sales analytics'],
-            problem: 'A retail business needed a reliable point-of-sale system to manage sales, inventory, and billing with multi-currency support.',
-            solution: 'Complete POS solution with inventory tracking, automated billing, and real-time business insights.',
-        },
-        {
-            title: 'Medical Lab Management',
-            type: 'Healthcare Software',
-            industry: 'Healthcare',
-            color: 'blue',
-            location: 'Kerala, India',
-            result: '60% faster reports',
-            highlights: ['Sample tracking', 'Auto report generation', 'Patient records'],
-            problem: 'A medical laboratory needed to manage patient records, lab tests, and automated report generation.',
-            solution: 'Comprehensive lab system with barcode tracking, automated reports, and reduced manual errors.',
-        },
-        {
-            title: 'Business Process Automation',
-            type: 'Automation System',
-            industry: 'Operations',
-            color: 'orange',
-            location: 'Multiple Clients',
-            result: '40+ hours saved weekly',
-            highlights: ['Data entry automation', 'Report scheduling', 'Workflow optimization'],
-            problem: 'Businesses needed to reduce manual repetitive tasks and streamline workflows.',
-            solution: 'Workflow automation with AI integrations for data processing and document management.',
-        }
-    ];
-
-    const getColorClasses = (color: string) => {
-        const colors: Record<string, { badge: string; border: string; accent: string; light: string }> = {
-            emerald: { badge: 'bg-black text-white', border: 'border-neutral-100', accent: 'text-black', light: 'bg-neutral-50' },
-            blue: { badge: 'bg-black text-white', border: 'border-neutral-100', accent: 'text-black', light: 'bg-neutral-50' },
-            orange: { badge: 'bg-black text-white', border: 'border-neutral-100', accent: 'text-black', light: 'bg-neutral-50' }
-        };
-        return colors[color] || colors.emerald;
-    };
-
     return (
-        <div className="min-h-screen bg-white text-black font-sans antialiased selection:bg-black selection:text-white">
+        <Layout>
             <SEO
-                title="Our Work | Custom Software Portfolio | Hexastack AI Solutions"
-                description="Explore our successful projects including advanced POS systems in Abu Dhabi, medical laboratory management software in Kerala, and end-to-end business automation."
-                keywords="software portfolio Kerala, POS system case studies, healthcare software examples, automation project gallery, software engineering portfolio, client success stories Thrissur, custom software development UAE, medical software implementation, business tool automation results, industrial automation software, billing software portfolio"
-                schema={{
-                    "@context": "https://schema.org",
-                    "@type": "CollectionPage",
-                    "name": "Our Work - Portfolio",
-                    "description": "Selected projects and case studies by Hexastack AI Solutions.",
-                    "mainEntity": {
-                        "@type": "ItemList",
-                        "itemListElement": [
-                            { "@type": "ListItem", "position": 1, "name": "Abu Dhabi Trading POS System" },
-                            { "@type": "ListItem", "position": 2, "name": "Medical Lab Management Suite" },
-                            { "@type": "ListItem", "position": 3, "name": "Business Process Automation" }
-                        ]
-                    }
-                }}
+                title="Our Work | Portfolio | HEXASTACK SOLUTIONS"
+                description="Real business challenges solved with structured digital solutions."
             />
-            {/* Navigation */}
-            <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-neutral-100">
-                <div className="max-w-6xl mx-auto px-8">
-                    <div className="flex justify-between items-center h-20">
-                        <Link to="/" className="text-2xl font-bold text-black tracking-tighter">Hexastack<span className="text-neutral-300"> AI Solutions.</span></Link>
-                        <div className="hidden md:flex items-center gap-10">
-                            <Link to="/" className="text-sm font-bold text-neutral-400 hover:text-black transition-colors uppercase tracking-widest">Home</Link>
-                            <span className="text-sm font-bold text-black uppercase tracking-widest border-b border-black">Work</span>
-                            <Link to="/contact" className="bg-black text-white px-8 py-3 rounded-full text-sm font-bold hover:bg-neutral-800 transition-all active:scale-95">
-                                Get in touch
-                            </Link>
-                        </div>
-                        <Link to="/contact" className="md:hidden bg-black text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest">
-                            Contact
-                        </Link>
-                    </div>
-                </div>
-            </nav>
+            <div className="bg-[#0D0D0D] text-[#F5F5F5] font-sans antialiased selection:bg-[#F5F5F5] selection:text-[#0D0D0D]">
 
-            {/* Header */}
-            <section className="pt-40 pb-16 px-8">
-                <div className="max-w-6xl mx-auto">
-                    <Link to="/" className="inline-flex items-center gap-2 text-neutral-400 hover:text-black mb-12 transition-colors font-bold uppercase text-[10px] tracking-widest">
-                        <ArrowLeft className="w-4 h-4" /> Back to home
-                    </Link>
-                    <div className="bg-neutral-50 rounded-[3rem] border border-neutral-100 p-12 md:p-20">
-                        <h1 className="text-5xl md:text-7xl font-bold text-black mb-8 tracking-tighter">Selected <br />Projects</h1>
-                        <p className="text-xl text-neutral-500 max-w-xl leading-relaxed">
-                            Real systems for real businesses. Honest work that solves actual operational challenges.
-                        </p>
-                    </div>
-                </div>
-            </section>
+                {/* SECTION 1: HERO */}
+                <section className="flex flex-col items-center justify-center text-center px-4 py-16 md:py-32 max-w-4xl mx-auto min-h-[50vh]">
+                    <h1 className="text-4xl md:text-6xl font-semibold tracking-tight leading-tight mb-4">
+                        Proven Systems. Measurable Results.
+                    </h1>
+                    <p className="text-[#A0A0A0] text-lg md:text-xl max-w-2xl leading-relaxed">
+                        Real business challenges solved with structured digital solutions.
+                    </p>
+                </section>
 
-            {/* Projects */}
-            <section className="py-8 px-6">
-                <div className="max-w-5xl mx-auto space-y-6">
-                    {projects.map((project, index) => {
-                        const colors = getColorClasses(project.color);
-                        return (
-                            <div
-                                key={index}
-                                className="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
-                            >
-                                {/* Project Header */}
-                                <div className={`px-10 py-10 ${colors.light} border-b ${colors.border}`}>
-                                    <div className="flex flex-wrap items-center gap-4 mb-6">
-                                        <span className={`text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest ${colors.badge}`}>
-                                            {project.type}
-                                        </span>
-                                        <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
-                                            {project.industry} • {project.location}
-                                        </span>
-                                    </div>
-                                    <h2 className="text-3xl md:text-4xl font-bold text-black tracking-tighter">{project.title}</h2>
-                                </div>
+                {/* SECTION 2: CASE STUDIES */}
+                <section className="px-4 pb-16 md:pb-32 max-w-5xl mx-auto">
+                    <div className="space-y-16 md:space-y-32">
 
-                                {/* Project Body */}
-                                <div className="p-10">
-                                    {/* Result */}
-                                    <div className="mb-10">
-                                        <div className="inline-flex items-center gap-3 bg-black text-white px-5 py-3 rounded-full">
-                                            <CheckCircle className="w-4 h-4" />
-                                            <span className="text-xs font-bold uppercase tracking-widest">Result: {project.result}</span>
-                                        </div>
-                                    </div>
+                        {/* Case Study 1: ZAYOGA GENERAL TRADING */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 p-8 border border-[rgba(255,255,255,0.08)] rounded hover:bg-[#141414] transition-colors duration-300">
+                            <div className="flex flex-col border-b md:border-b-0 md:border-r border-[rgba(255,255,255,0.08)] pb-8 md:pb-0 md:pr-16">
+                                <h2 className="text-2xl font-bold tracking-tight mb-2 uppercase">ZAYOGA GENERAL TRADING</h2>
+                                <p className="text-[#A0A0A0] text-sm md:text-base mb-1">Sole Proprietorship L.L.C</p>
+                                <p className="text-[#A0A0A0] text-sm md:text-base mb-6">Abu Dhabi, UAE</p>
+                                <span className="inline-block text-xs font-semibold tracking-widest text-[#F5F5F5] uppercase mt-2">Retail & Wholesale Distribution</span>
 
-                                    {/* Problem & Solution Grid */}
-                                    <div className="grid md:grid-cols-2 gap-8 mb-10">
-                                        <div className="bg-neutral-50 rounded-2xl p-8 border border-neutral-100">
-                                            <h3 className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em] mb-4">The Challenge</h3>
-                                            <p className="text-black font-medium leading-relaxed">{project.problem}</p>
-                                        </div>
-                                        <div className="bg-neutral-50 rounded-2xl p-8 border border-neutral-100">
-                                            <h3 className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em] mb-4">Our Solution</h3>
-                                            <p className="text-black font-medium leading-relaxed">{project.solution}</p>
-                                        </div>
-                                    </div>
-
-                                    {/* Highlights */}
-                                    <div className="pt-10 border-t border-neutral-50">
-                                        <h4 className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-6">Key Engineering Highlights</h4>
-                                        <div className="flex flex-wrap gap-3">
-                                            {project.highlights.map((highlight, i) => (
-                                                <span
-                                                    key={i}
-                                                    className={`text-xs font-bold px-5 py-2.5 rounded-full border border-neutral-100 bg-white text-black uppercase tracking-widest`}
-                                                >
-                                                    {highlight}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
+                                <div className="mt-auto hidden md:block pt-8">
+                                    <h3 className="text-sm font-semibold text-[#A0A0A0] uppercase tracking-wider mb-2">Platform Deployed:</h3>
+                                    <p className="text-[#F5F5F5] font-medium">HexaBill — Business Management Software</p>
                                 </div>
                             </div>
-                        );
-                    })}
-                </div>
-            </section>
 
-            {/* CTA */}
-            <section className="py-24 px-8">
-                <div className="max-w-6xl mx-auto">
-                    <div className="bg-black rounded-[4rem] p-16 md:p-24 text-center shadow-2xl">
-                        <h2 className="text-4xl md:text-6xl font-bold text-white mb-8 tracking-tighter">Have a similar project?</h2>
-                        <p className="text-neutral-400 text-lg md:text-xl mb-12 max-w-md mx-auto leading-relaxed">Let's discuss how we can engineer a stable solution for your business.</p>
-                        <Link
-                            to="/contact"
-                            className="inline-flex items-center gap-3 bg-white text-black px-10 py-5 rounded-full hover:bg-neutral-200 transition-all font-bold text-lg active:scale-95 group"
-                        >
-                            Talk to us
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                            <div className="space-y-8 flex flex-col justify-center">
+                                <div>
+                                    <h3 className="text-sm font-semibold text-[#A0A0A0] uppercase tracking-wider mb-2">Challenge</h3>
+                                    <p className="text-[#F5F5F5] leading-relaxed line-clamp-2">Legacy billing and manual tracking processes limited scalability, requiring a robust digital foundation and safe legacy data onboarding.</p>
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-semibold text-[#A0A0A0] uppercase tracking-wider mb-2">Solution</h3>
+                                    <p className="text-[#F5F5F5] leading-relaxed line-clamp-3">Architected multi-tenant <strong>HexaBill SaaS</strong> featuring a 40+ table PostgreSQL schema, financial reconciliation logic, and Stripe subscriptions.</p>
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-semibold text-[#A0A0A0] uppercase tracking-wider mb-3">Results</h3>
+                                    <ul className="space-y-3">
+                                        <li className="flex items-start gap-4"><span className="w-1.5 h-1.5 bg-[#F5F5F5] rounded-full mt-2.5 shrink-0"></span> <span className="text-[#F5F5F5] text-sm">Scaled structure to service 4 paying B2B clients at ~₹1.2 Cr/month volume.</span></li>
+                                        <li className="flex items-start gap-4"><span className="w-1.5 h-1.5 bg-[#F5F5F5] rounded-full mt-2.5 shrink-0"></span> <span className="text-[#F5F5F5] text-sm">Executed UAE legacy data migration — reverse-engineered billing schema.</span></li>
+                                        <li className="flex items-start gap-4"><span className="w-1.5 h-1.5 bg-[#F5F5F5] rounded-full mt-2.5 shrink-0"></span> <span className="text-[#F5F5F5] text-sm">Migrated 241 live invoices securely with automated validation and zero data loss.</span></li>
+                                    </ul>
+                                </div>
+
+                                <div className="pt-2">
+                                    <Link to="/products/hexabill" className="flex items-center justify-center h-12 w-full bg-[#111111] border border-[rgba(255,255,255,0.08)] text-[#F5F5F5] font-medium rounded hover:bg-[#F5F5F5] hover:text-[#0D0D0D] transition-colors">
+                                        View Implementation Details
+                                    </Link>
+                                </div>
+
+                                <div className="md:hidden pt-4 mt-2 border-t border-[rgba(255,255,255,0.08)]">
+                                    <h3 className="text-sm font-semibold text-[#A0A0A0] uppercase tracking-wider mb-2">Platform Deployed:</h3>
+                                    <p className="text-[#F5F5F5] font-medium text-sm">HexaBill — Business Management Software</p>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        {/* Case Study 2: HEALit MEDICAL LAB MANAGEMENT */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 p-8 border border-[rgba(255,255,255,0.08)] rounded hover:bg-[#141414] transition-colors duration-300">
+                            <div className="flex flex-col border-b md:border-b-0 md:border-r border-[rgba(255,255,255,0.08)] pb-8 md:pb-0 md:pr-16">
+                                <h2 className="text-2xl font-bold tracking-tight mb-2 uppercase">HEALit MEDICAL LAB SYSTEM</h2>
+                                <p className="text-[#A0A0A0] text-sm md:text-base mb-1">Thyrocare Lab</p>
+                                <span className="inline-block text-xs font-semibold tracking-widest text-[#F5F5F5] uppercase mt-6">Healthcare Technology</span>
+                            </div>
+                            <div className="space-y-8 flex flex-col justify-center">
+                                <div>
+                                    <h3 className="text-sm font-semibold text-[#A0A0A0] uppercase tracking-wider mb-2">Challenge</h3>
+                                    <p className="text-[#F5F5F5] leading-relaxed line-clamp-2">Fragmented patient workflows and slow reporting turnarounds required a highly available system with robust multi-device synchronization.</p>
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-semibold text-[#A0A0A0] uppercase tracking-wider mb-2">Solution</h3>
+                                    <p className="text-[#F5F5F5] leading-relaxed line-clamp-3">Deployed <strong>HEALit Medical Lab Management System</strong> engineered with a resilient circuit breaker pattern for external integrations.</p>
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-semibold text-[#A0A0A0] uppercase tracking-wider mb-3">Results</h3>
+                                    <ul className="space-y-3">
+                                        <li className="flex items-start gap-4"><span className="w-1.5 h-1.5 bg-[#F5F5F5] rounded-full mt-2.5 shrink-0"></span> <span className="text-[#F5F5F5] text-sm">Engineered 30+ comprehensive test profiles flawlessly synced across devices.</span></li>
+                                        <li className="flex items-start gap-4"><span className="w-1.5 h-1.5 bg-[#F5F5F5] rounded-full mt-2.5 shrink-0"></span> <span className="text-[#F5F5F5] text-sm">Automated and completely native secure PDF report generation.</span></li>
+                                        <li className="flex items-start gap-4"><span className="w-1.5 h-1.5 bg-[#F5F5F5] rounded-full mt-2.5 shrink-0"></span> <span className="text-[#F5F5F5] text-sm">Zero-delay instant WhatsApp and email result delivery system.</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Case Study 3: STARPLUS POS SYSTEM */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 p-8 border border-[rgba(255,255,255,0.08)] rounded hover:bg-[#141414] transition-colors duration-300">
+                            <div className="flex flex-col border-b md:border-b-0 md:border-r border-[rgba(255,255,255,0.08)] pb-8 md:pb-0 md:pr-16">
+                                <h2 className="text-2xl font-bold tracking-tight mb-2 uppercase">STARPLUS UAE POS SYSTEM</h2>
+                                <p className="text-[#A0A0A0] text-sm md:text-base mb-1">Retail Billing Interface</p>
+                                <span className="inline-block text-xs font-semibold tracking-widest text-[#F5F5F5] uppercase mt-6">Enterprise Operations</span>
+                            </div>
+                            <div className="space-y-8 flex flex-col justify-center">
+                                <div>
+                                    <h3 className="text-sm font-semibold text-[#A0A0A0] uppercase tracking-wider mb-2">Challenge</h3>
+                                    <p className="text-[#F5F5F5] leading-relaxed line-clamp-2">Scaling Gulf retail operations demanded a strict bilingual billing system that prioritizes high-volume performance with zero deployment downtime.</p>
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-semibold text-[#A0A0A0] uppercase tracking-wider mb-2">Solution</h3>
+                                    <p className="text-[#F5F5F5] leading-relaxed line-clamp-3">Engineered a cutting-edge engine using <strong>React 18</strong>, <strong>ASP.NET Core 9</strong>, and <strong>PostgreSQL</strong> deployed completely via Docker + GitHub Actions CI/CD.</p>
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-semibold text-[#A0A0A0] uppercase tracking-wider mb-3">Results</h3>
+                                    <ul className="space-y-3">
+                                        <li className="flex items-start gap-4"><span className="w-1.5 h-1.5 bg-[#F5F5F5] rounded-full mt-2.5 shrink-0"></span> <span className="text-[#F5F5F5] text-sm">Guaranteed 5% VAT compliance designed natively for UAE retail.</span></li>
+                                        <li className="flex items-start gap-4"><span className="w-1.5 h-1.5 bg-[#F5F5F5] rounded-full mt-2.5 shrink-0"></span> <span className="text-[#F5F5F5] text-sm">Seamless bilingual (English / Arabic) localized user experience.</span></li>
+                                        <li className="flex items-start gap-4"><span className="w-1.5 h-1.5 bg-[#F5F5F5] rounded-full mt-2.5 shrink-0"></span> <span className="text-[#F5F5F5] text-sm">100% client satisfaction achieved with rigorous automated pipelines.</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                {/* SECTION 3: TECHNICAL CAPABILITIES STRIP */}
+                <section className="px-4 py-12 md:py-16 border-t border-b border-[rgba(255,255,255,0.08)] bg-[#0D0D0D]">
+                    <div className="max-w-7xl mx-auto flex flex-wrap justify-center items-center gap-x-6 gap-y-4 text-sm md:text-base text-[#A0A0A0] tracking-wide">
+                        <span>Multi-tenant SaaS Architecture</span>
+                        <span className="hidden sm:inline-block w-1 h-1 bg-[rgba(255,255,255,0.2)] rounded-full"></span>
+                        <span>Secure JWT Authentication</span>
+                        <span className="hidden md:inline-block w-1 h-1 bg-[rgba(255,255,255,0.2)] rounded-full"></span>
+                        <span>Audit Logging</span>
+                        <span className="hidden lg:inline-block w-1 h-1 bg-[rgba(255,255,255,0.2)] rounded-full"></span>
+                        <span>Role-Based Permissions</span>
+                        <span className="hidden xl:inline-block w-1 h-1 bg-[rgba(255,255,255,0.2)] rounded-full"></span>
+                        <span>Cloud Deployment</span>
+                    </div>
+                </section>
+
+                {/* SECTION 4: FINAL CTA */}
+                <section className="px-4 py-16 md:py-32 text-center">
+                    <h2 className="text-3xl md:text-5xl font-medium tracking-tight mb-8">
+                        Let’s Build Your Next System.
+                    </h2>
+                    <div className="flex justify-center flex-col md:flex-row">
+                        <Link to="/contact" className="flex items-center justify-center h-12 w-full md:w-auto px-12 bg-[#F5F5F5] text-[#0D0D0D] font-medium rounded hover:bg-white transition-colors">
+                            Book Consultation
                         </Link>
                     </div>
-                </div>
-            </section>
-
-            {/* Footer */}
-            <footer className="py-16 px-8 border-t border-neutral-100">
-                <div className="max-w-6xl mx-auto">
-                    <div className="grid md:grid-cols-3 gap-16 mb-16">
-                        <div>
-                            <h3 className="text-2xl font-bold text-black mb-6 tracking-tighter">Hexastack<span className="text-neutral-300"> AI Solutions.</span></h3>
-                            <p className="text-neutral-500 leading-relaxed max-w-xs">Engineering reliable digital systems for businesses that value efficiency.</p>
-                        </div>
-                        <div>
-                            <h4 className="text-[10px] font-bold text-black mb-8 uppercase tracking-[0.3em]">Contact</h4>
-                            <div className="space-y-4">
-                                <a href="tel:+917012714150" className="flex items-center gap-4 text-neutral-500 hover:text-black transition-colors font-medium">
-                                    <Phone className="w-4 h-4" /> +91 70127 14150
-                                </a>
-                                <a href="tel:+917591999365" className="flex items-center gap-4 text-neutral-500 hover:text-black transition-colors font-medium">
-                                    <Phone className="w-4 h-4" /> +91 75919 99365
-                                </a>
-                                <a href="mailto:hexastack78@gmail.com" className="flex items-center gap-4 text-neutral-500 hover:text-black transition-colors font-medium">
-                                    <Mail className="w-4 h-4" /> hexastack78@gmail.com
-                                </a>
-                            </div>
-                        </div>
-                        <div>
-                            <h4 className="text-[10px] font-bold text-black mb-8 uppercase tracking-[0.3em]">Base</h4>
-                            <div className="flex items-center gap-4 text-neutral-500 font-medium">
-                                <MapPin className="w-4 h-4" /> Thrissur, Kerala
-                            </div>
-                        </div>
-                    </div>
-                    <div className="pt-12 border-t border-neutral-100 flex justify-between items-center px-4">
-                        <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">© {new Date().getFullYear()} Hexastack AI Solutions.</p>
-                        <p className="text-[10px] font-bold text-neutral-300 uppercase tracking-widest">Monochrome Edition</p>
-                    </div>
-                </div>
-            </footer>
-        </div>
+                </section>
+            </div>
+        </Layout>
     );
 }

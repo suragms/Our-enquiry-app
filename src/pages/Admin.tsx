@@ -35,6 +35,7 @@ interface PortfolioProject {
 interface CompanySettings {
     id?: string;
     companyName: string;
+    logoUrl?: string | null;
     primaryEmail: string;
     primaryWhatsApp: string;
     secondaryWhatsApp: string;
@@ -51,6 +52,7 @@ interface CompanySettings {
 interface Service {
     id: string;
     name: string;
+    description?: string;
     icon: string;
     link: string | null;
     isComingSoon: boolean;
@@ -114,6 +116,7 @@ export default function Admin() {
     const [editingSettings, setEditingSettings] = useState(false);
     const [settingsForm, setSettingsForm] = useState<CompanySettings>({
         companyName: '',
+        logoUrl: '',
         primaryEmail: '',
         primaryWhatsApp: '',
         secondaryWhatsApp: '',
@@ -142,6 +145,7 @@ export default function Admin() {
     const [showServiceForm, setShowServiceForm] = useState(false);
     const [serviceForm, setServiceForm] = useState({
         name: '',
+        description: '',
         link: '',
         icon: '',
         isComingSoon: false,
@@ -199,7 +203,7 @@ export default function Admin() {
                 await fetchServices();
                 setShowServiceForm(false);
                 setEditingService(null);
-                setServiceForm({ name: '', link: '', icon: '', isComingSoon: false, displayOrder: 0 });
+                setServiceForm({ name: '', description: '', link: '', icon: '', isComingSoon: false, displayOrder: 0 });
                 showNotification('success', editingService ? 'Service updated' : 'Service created');
             }
         } catch (error) {
@@ -229,6 +233,7 @@ export default function Admin() {
         setEditingService(service);
         setServiceForm({
             name: service.name,
+            description: service.description || '',
             link: service.link || '',
             icon: service.icon,
             isComingSoon: service.isComingSoon,
@@ -639,7 +644,7 @@ export default function Admin() {
             if (response.ok) {
                 const data = await response.json();
                 setSettings(data);
-                setSettingsForm(data);
+                setSettingsForm((prev) => ({ ...prev, ...data }));
             }
         } catch (error) {
             console.error('Failed to fetch settings:', error);
@@ -680,7 +685,7 @@ export default function Admin() {
     if (!isAuthenticated) {
         return (
             <div className="min-h-screen bg-slate-50 font-sans flex items-center justify-center px-6">
-                <SEO title="Admin Login | Hexastack" description="Secure admin access" noindex />
+                <SEO title="Admin Login | HexaStack" description="Secure admin access" noindex />
                 <div className="w-full max-w-sm">
                     <div className="bg-white rounded-lg border border-slate-200 p-8 shadow-sm">
                         <div className="text-center mb-8">
@@ -733,7 +738,7 @@ export default function Admin() {
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans">
-            <SEO title="Admin Dashboard | Hexastack" description="Manage your website" noindex />
+            <SEO title="Admin Dashboard | HexaStack" description="Manage your website" noindex />
             {/* Notification */}
             {notification && (
                 <div className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg ${notification.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
@@ -1297,6 +1302,57 @@ export default function Admin() {
 
                         <div className="bg-white rounded-lg border border-slate-200 p-6">
                             <div className="grid md:grid-cols-2 gap-6">
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Brand Logo</label>
+                                    <p className="text-xs text-slate-500 mb-2">Upload a logo (SVG/PNG/JPG). Used in header; fallback: site logo.</p>
+                                    <div className="flex items-center gap-4">
+                                        {settingsForm.logoUrl ? (
+                                            <div className="relative w-24 h-24 rounded border border-slate-200 overflow-hidden bg-slate-50">
+                                                <img src={settingsForm.logoUrl} alt="Brand logo" className="w-full h-full object-contain" />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setSettingsForm({ ...settingsForm, logoUrl: '' })}
+                                                    disabled={!editingSettings}
+                                                    className="absolute top-0 right-0 bg-red-500 text-white rounded-bl p-1 hover:bg-red-600 disabled:opacity-50"
+                                                >
+                                                    <X className="w-3 h-3" />
+                                                </button>
+                                            </div>
+                                        ) : null}
+                                        {editingSettings && (
+                                            <div
+                                                onClick={() => {
+                                                    const input = document.createElement('input');
+                                                    input.type = 'file';
+                                                    input.accept = 'image/*';
+                                                    input.onchange = async (e) => {
+                                                        const file = (e.target as HTMLInputElement).files?.[0];
+                                                        if (!file) return;
+                                                        setUploading(true);
+                                                        try {
+                                                            const formData = new FormData();
+                                                            formData.append('file', file);
+                                                            const res = await fetch(`${API_URL}/api/upload`, { method: 'POST', body: formData });
+                                                            if (res.ok) {
+                                                                const data = await res.json();
+                                                                setSettingsForm({ ...settingsForm, logoUrl: data.url });
+                                                                showNotification('success', 'Logo uploaded');
+                                                            }
+                                                        } catch {
+                                                            showNotification('error', 'Upload failed');
+                                                        } finally {
+                                                            setUploading(false);
+                                                        }
+                                                    };
+                                                    input.click();
+                                                }}
+                                                className="w-24 h-24 border-2 border-dashed border-slate-300 rounded flex items-center justify-center cursor-pointer hover:border-slate-400"
+                                            >
+                                                {uploading ? <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-600" /> : <ImagePlus className="w-8 h-8 text-slate-400" />}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Company Name</label>
                                     <input
@@ -1418,7 +1474,7 @@ export default function Admin() {
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-lg font-semibold text-slate-900">Manage Services</h2>
                             <button
-                                onClick={() => { setShowServiceForm(true); setEditingService(null); setServiceForm({ name: '', link: '', icon: '', isComingSoon: false, displayOrder: services.length }); }}
+                                onClick={() => { setShowServiceForm(true); setEditingService(null); setServiceForm({ name: '', description: '', link: '', icon: '', isComingSoon: false, displayOrder: services.length }); }}
                                 className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800 text-sm font-medium"
                             >
                                 <Plus className="w-4 h-4" />
@@ -1458,6 +1514,16 @@ export default function Admin() {
                                                 onChange={(e) => setServiceForm({ ...serviceForm, link: e.target.value })}
                                                 className="w-full px-3 py-2 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 text-sm"
                                                 placeholder="/services/ai"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+                                            <textarea
+                                                value={serviceForm.description}
+                                                onChange={(e) => setServiceForm({ ...serviceForm, description: e.target.value })}
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 text-sm"
+                                                rows={2}
+                                                placeholder="Short description of the service"
                                             />
                                         </div>
                                         <div>

@@ -14,7 +14,11 @@ router.get('/', async (_req, res) => {
 
 router.patch('/', async (req, res) => {
     try {
-        const data = req.body;
+        const allowed = ['companyName', 'logoUrl', 'primaryEmail', 'primaryWhatsApp', 'secondaryWhatsApp', 'leadName1', 'leadEmail1', 'leadWhatsApp1', 'leadName2', 'leadWhatsApp2', 'address', 'tagline', 'description'];
+        const data: Record<string, unknown> = {};
+        for (const key of allowed) {
+            if (req.body[key] !== undefined) data[key] = req.body[key];
+        }
         const first = await db.companySettings.findFirst();
 
         let settings;

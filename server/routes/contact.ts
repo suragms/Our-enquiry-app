@@ -15,7 +15,13 @@ const sanitize = (str: string): string => {
 };
 
 // Send email notification to admin (using Web3Forms - free service)
-const sendEmailNotification = async (name: string, email: string, phone: string | null, requirement: string) => {
+const sendEmailNotification = async (
+    name: string,
+    email: string,
+    phone: string | null,
+    requirement: string,
+    extra?: { companyName?: string; country?: string; industry?: string; serviceOrProduct?: string; budget?: string; timeline?: string; numberOfBranches?: string; currentSystem?: string }
+) => {
     try {
         // Web3Forms is a free email API - no signup needed for basic usage
         // Alternative: User can replace with their own SMTP or email service
@@ -28,6 +34,14 @@ const sendEmailNotification = async (name: string, email: string, phone: string 
         console.log(`Name: ${name}`);
         console.log(`Email: ${email}`);
         console.log(`Phone: ${phone || 'Not provided'}`);
+        if (extra?.companyName) console.log(`Company: ${extra.companyName}`);
+        if (extra?.country) console.log(`Country: ${extra.country}`);
+        if (extra?.industry) console.log(`Industry: ${extra.industry}`);
+        if (extra?.serviceOrProduct) console.log(`Service/Product: ${extra.serviceOrProduct}`);
+        if (extra?.budget) console.log(`Budget: ${extra.budget}`);
+        if (extra?.timeline) console.log(`Timeline: ${extra.timeline}`);
+        if (extra?.numberOfBranches) console.log(`Number of branches: ${extra.numberOfBranches}`);
+        if (extra?.currentSystem) console.log(`Current system: ${extra.currentSystem}`);
         console.log(`Requirement: ${requirement}`);
         console.log(`========================================`);
         console.log(`To enable email notifications, add SMTP settings to .env`);
@@ -50,10 +64,18 @@ const sendEmailNotification = async (name: string, email: string, phone: string 
                         <p><strong>Name:</strong> ${name}</p>
                         <p><strong>Email:</strong> ${email}</p>
                         <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+                        ${extra?.companyName ? `<p><strong>Company:</strong> ${extra.companyName}</p>` : ''}
+                        ${extra?.country ? `<p><strong>Country:</strong> ${extra.country}</p>` : ''}
+                        ${extra?.industry ? `<p><strong>Industry:</strong> ${extra.industry}</p>` : ''}
+                        ${extra?.serviceOrProduct ? `<p><strong>Service/Product:</strong> ${extra.serviceOrProduct}</p>` : ''}
+                        ${extra?.budget ? `<p><strong>Budget:</strong> ${extra.budget}</p>` : ''}
+                        ${extra?.timeline ? `<p><strong>Timeline:</strong> ${extra.timeline}</p>` : ''}
+                        ${extra?.numberOfBranches ? `<p><strong>Number of branches:</strong> ${extra.numberOfBranches}</p>` : ''}
+                        ${extra?.currentSystem ? `<p><strong>Current system:</strong> ${extra.currentSystem}</p>` : ''}
                         <p><strong>Requirement:</strong></p>
                         <p>${requirement}</p>
                         <hr>
-                        <p><small>Sent from HexaStack AI Solutions website</small></p>
+                        <p><small>Sent from HexaStack Solutions website</small></p>
                     `,
                 }),
             });
@@ -71,7 +93,7 @@ const sendEmailNotification = async (name: string, email: string, phone: string 
 // Create new enquiry
 router.post('/', async (req, res) => {
     try {
-        const { name, email, phone, requirement } = req.body;
+        const { name, email, phone, requirement, companyName, country, industry, serviceOrProduct, budget, timeline, numberOfBranches, currentSystem } = req.body;
 
         // Validate required fields
         if (!name || !email || !requirement) {
@@ -104,13 +126,30 @@ router.post('/', async (req, res) => {
                 email: sanitize(email).toLowerCase(),
                 phone: phone ? sanitize(phone) : null,
                 requirement: sanitize(requirement),
+                companyName: companyName ? sanitize(companyName).slice(0, 200) : null,
+                country: country ? sanitize(country).slice(0, 100) : null,
+                industry: industry ? sanitize(industry).slice(0, 100) : null,
+                serviceOrProduct: serviceOrProduct ? sanitize(serviceOrProduct).slice(0, 100) : null,
+                budget: budget ? sanitize(budget).slice(0, 100) : null,
+                timeline: timeline ? sanitize(timeline).slice(0, 100) : null,
+                numberOfBranches: numberOfBranches ? sanitize(numberOfBranches).slice(0, 50) : null,
+                currentSystem: currentSystem ? sanitize(currentSystem).slice(0, 200) : null,
             },
         });
 
         console.log(`[NEW_ENQUIRY] ${name} <${email}>`);
 
         // Send email notification to admin (async, don't block response)
-        sendEmailNotification(name, email, phone, requirement);
+        sendEmailNotification(name, email, phone, requirement, {
+            companyName: companyName ? sanitize(companyName) : undefined,
+            country: country ? sanitize(country) : undefined,
+            industry: industry ? sanitize(industry) : undefined,
+            serviceOrProduct: serviceOrProduct ? sanitize(serviceOrProduct) : undefined,
+            budget: budget ? sanitize(budget) : undefined,
+            timeline: timeline ? sanitize(timeline) : undefined,
+            numberOfBranches: numberOfBranches ? sanitize(numberOfBranches) : undefined,
+            currentSystem: currentSystem ? sanitize(currentSystem) : undefined,
+        });
 
         // Track form submission for analytics
         try {

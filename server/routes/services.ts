@@ -25,11 +25,12 @@ router.get('/', async (_req, res) => {
 router.post('/', async (req, res) => {
     try {
         const collection = await getCollection('Service');
-        const { name, icon, link, isComingSoon, displayOrder } = req.body;
+        const { name, icon, description, link, isComingSoon, displayOrder } = req.body;
 
         const newService = {
             name,
             icon,
+            description,
             link,
             isComingSoon: !!isComingSoon,
             displayOrder: parseInt(displayOrder) || 0,
@@ -50,11 +51,12 @@ router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const collection = await getCollection('Service');
-        const { name, icon, link, isComingSoon, displayOrder } = req.body;
+        const { name, icon, description, link, isComingSoon, displayOrder } = req.body;
 
         const updateData = {
             name,
             icon,
+            description,
             link,
             isComingSoon: !!isComingSoon,
             displayOrder: parseInt(displayOrder) || 0,

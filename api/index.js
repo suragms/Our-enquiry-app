@@ -97,9 +97,9 @@ app.get('/api/analytics/stats', async (_req, res) => {
 // Contact form submission
 app.post('/api/contact', async (req, res) => {
     try {
-        const { name, email, phone, requirement } = req.body;
+        const { name, email, phone, requirement, companyName, country, industry, serviceOrProduct, budget, timeline } = req.body;
 
-        console.log('[CONTACT] Received:', { name, email, phone, requirement: requirement?.slice(0, 50) });
+        console.log('[CONTACT] Received:', { name, email, phone, requirement: requirement?.slice(0, 50), companyName, country, industry });
 
         if (!name || !name.trim()) {
             return res.status(400).json({ error: 'Name is required' });
@@ -122,6 +122,12 @@ app.post('/api/contact', async (req, res) => {
                 email: email.trim().toLowerCase().slice(0, 1000),
                 phone: phone ? phone.trim().slice(0, 1000) : null,
                 requirement: requirement.trim().slice(0, 5000),
+                companyName: companyName ? companyName.trim().slice(0, 200) : null,
+                country: country ? country.trim().slice(0, 100) : null,
+                industry: industry ? industry.trim().slice(0, 100) : null,
+                serviceOrProduct: serviceOrProduct ? serviceOrProduct.trim().slice(0, 100) : null,
+                budget: budget ? budget.trim().slice(0, 100) : null,
+                timeline: timeline ? timeline.trim().slice(0, 100) : null,
             },
         });
 
